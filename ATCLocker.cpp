@@ -5,6 +5,10 @@
 #include "ATCLocker.h"
 #include "isaac.h"
 
+#ifdef unix
+#undef unix
+#endif
+
 ATCLocker::ATCLocker() :
 
 passwd_try_limit_(ATC_DEFAULT_PASSWORD_TRY_LIMIT),
@@ -148,8 +152,8 @@ ATCResult ATCLocker::writeEncryptedHeader(ostream *dst)
 		int32_t create_dt, create_tm;
 
 		// UNIX時間 から TTimeStampへ変換
-		unix_to_ttime(it->change_unix_time,& change_dt, &change_tm);
-		unix_to_ttime(it->create_unix_time,& create_dt, &create_tm);
+		unix_to_ttime(it->change_unix_time, &change_dt, &change_tm);
+		unix_to_ttime(it->create_unix_time, &create_dt, &create_tm);
 
 		common += convertToString(change_dt) + "\t";
 		common += convertToString(change_tm) + "\t";
