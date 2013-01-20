@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libatc", "libatc.vcxproj", "{9D30D625-AAFD-4C46-8F68-E4B29BF29467}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libatc_test", "libatc_test\libatc_test.vcxproj", "{31AAC7DC-9875-4323-9FE2-EF21FE7C4899}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9D30D625-AAFD-4C46-8F68-E4B29BF29467} = {9D30D625-AAFD-4C46-8F68-E4B29BF29467}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D30D625-AAFD-4C46-8F68-E4B29BF29467}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9D30D625-AAFD-4C46-8F68-E4B29BF29467}.Debug|Win32.Build.0 = Debug|Win32
+		{9D30D625-AAFD-4C46-8F68-E4B29BF29467}.Release|Win32.ActiveCfg = Release|Win32
+		{9D30D625-AAFD-4C46-8F68-E4B29BF29467}.Release|Win32.Build.0 = Release|Win32
+		{31AAC7DC-9875-4323-9FE2-EF21FE7C4899}.Debug|Win32.ActiveCfg = Debug|Win32
+		{31AAC7DC-9875-4323-9FE2-EF21FE7C4899}.Debug|Win32.Build.0 = Debug|Win32
+		{31AAC7DC-9875-4323-9FE2-EF21FE7C4899}.Release|Win32.ActiveCfg = Release|Win32
+		{31AAC7DC-9875-4323-9FE2-EF21FE7C4899}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

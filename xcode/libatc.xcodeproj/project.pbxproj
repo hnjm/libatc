@@ -1,0 +1,354 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E400741416ABEA3300040B4A /* ATCCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = E400740A16ABEA3300040B4A /* ATCCommon.h */; };
+		E400741516ABEA3300040B4A /* ATCLocker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E400740B16ABEA3300040B4A /* ATCLocker.cpp */; };
+		E400741616ABEA3300040B4A /* ATCLocker.h in Headers */ = {isa = PBXBuildFile; fileRef = E400740C16ABEA3300040B4A /* ATCLocker.h */; };
+		E400741716ABEA3300040B4A /* ATCUnlocker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E400740D16ABEA3300040B4A /* ATCUnlocker.cpp */; };
+		E400741816ABEA3300040B4A /* ATCUnlocker.h in Headers */ = {isa = PBXBuildFile; fileRef = E400740E16ABEA3300040B4A /* ATCUnlocker.h */; };
+		E400741916ABEA3300040B4A /* isaac.c in Sources */ = {isa = PBXBuildFile; fileRef = E400740F16ABEA3300040B4A /* isaac.c */; };
+		E400741A16ABEA3300040B4A /* isaac.h in Headers */ = {isa = PBXBuildFile; fileRef = E400741016ABEA3300040B4A /* isaac.h */; };
+		E400741B16ABEA3300040B4A /* Rijndael.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E400741116ABEA3300040B4A /* Rijndael.cpp */; };
+		E400741C16ABEA3300040B4A /* Rijndael.h in Headers */ = {isa = PBXBuildFile; fileRef = E400741216ABEA3300040B4A /* Rijndael.h */; };
+		E400741D16ABEA3300040B4A /* standard.h in Headers */ = {isa = PBXBuildFile; fileRef = E400741316ABEA3300040B4A /* standard.h */; };
+		E400747116ABED8900040B4A /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E400747016ABED8900040B4A /* test.cpp */; };
+		E400747416ABEE1800040B4A /* libatc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E400740316ABEA0100040B4A /* libatc.a */; };
+		E400747716ABEE9400040B4A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E400747616ABEE9400040B4A /* libz.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E400747216ABEDA400040B4A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E40073FA16ABEA0100040B4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E400740216ABEA0100040B4A;
+			remoteInfo = libatc;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E400746416ABED6000040B4A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		E400740316ABEA0100040B4A /* libatc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libatc.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E400740A16ABEA3300040B4A /* ATCCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ATCCommon.h; path = ../ATCCommon.h; sourceTree = "<group>"; };
+		E400740B16ABEA3300040B4A /* ATCLocker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ATCLocker.cpp; path = ../ATCLocker.cpp; sourceTree = "<group>"; };
+		E400740C16ABEA3300040B4A /* ATCLocker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ATCLocker.h; path = ../ATCLocker.h; sourceTree = "<group>"; };
+		E400740D16ABEA3300040B4A /* ATCUnlocker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ATCUnlocker.cpp; path = ../ATCUnlocker.cpp; sourceTree = "<group>"; };
+		E400740E16ABEA3300040B4A /* ATCUnlocker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ATCUnlocker.h; path = ../ATCUnlocker.h; sourceTree = "<group>"; };
+		E400740F16ABEA3300040B4A /* isaac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = isaac.c; path = ../isaac.c; sourceTree = "<group>"; };
+		E400741016ABEA3300040B4A /* isaac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = isaac.h; path = ../isaac.h; sourceTree = "<group>"; };
+		E400741116ABEA3300040B4A /* Rijndael.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rijndael.cpp; path = ../Rijndael.cpp; sourceTree = "<group>"; };
+		E400741216ABEA3300040B4A /* Rijndael.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Rijndael.h; path = ../Rijndael.h; sourceTree = "<group>"; };
+		E400741316ABEA3300040B4A /* standard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = standard.h; path = ../standard.h; sourceTree = "<group>"; };
+		E400746616ABED6000040B4A /* libatc_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = libatc_test; sourceTree = BUILT_PRODUCTS_DIR; };
+		E400747016ABED8900040B4A /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../test/test.cpp; sourceTree = "<group>"; };
+		E400747616ABEE9400040B4A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E400740016ABEA0100040B4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E400746316ABED6000040B4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E400747716ABEE9400040B4A /* libz.dylib in Frameworks */,
+				E400747416ABEE1800040B4A /* libatc.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E40073F816ABEA0100040B4A = {
+			isa = PBXGroup;
+			children = (
+				E400747616ABEE9400040B4A /* libz.dylib */,
+				E400747516ABEE3700040B4A /* test */,
+				E400740A16ABEA3300040B4A /* ATCCommon.h */,
+				E400740B16ABEA3300040B4A /* ATCLocker.cpp */,
+				E400740C16ABEA3300040B4A /* ATCLocker.h */,
+				E400740D16ABEA3300040B4A /* ATCUnlocker.cpp */,
+				E400740E16ABEA3300040B4A /* ATCUnlocker.h */,
+				E400740F16ABEA3300040B4A /* isaac.c */,
+				E400741016ABEA3300040B4A /* isaac.h */,
+				E400741116ABEA3300040B4A /* Rijndael.cpp */,
+				E400741216ABEA3300040B4A /* Rijndael.h */,
+				E400741316ABEA3300040B4A /* standard.h */,
+				E400740416ABEA0100040B4A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E400740416ABEA0100040B4A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E400740316ABEA0100040B4A /* libatc.a */,
+				E400746616ABED6000040B4A /* libatc_test */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E400747516ABEE3700040B4A /* test */ = {
+			isa = PBXGroup;
+			children = (
+				E400747016ABED8900040B4A /* test.cpp */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E400740116ABEA0100040B4A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E400741416ABEA3300040B4A /* ATCCommon.h in Headers */,
+				E400741616ABEA3300040B4A /* ATCLocker.h in Headers */,
+				E400741816ABEA3300040B4A /* ATCUnlocker.h in Headers */,
+				E400741A16ABEA3300040B4A /* isaac.h in Headers */,
+				E400741C16ABEA3300040B4A /* Rijndael.h in Headers */,
+				E400741D16ABEA3300040B4A /* standard.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		E400740216ABEA0100040B4A /* libatc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E400740716ABEA0100040B4A /* Build configuration list for PBXNativeTarget "libatc" */;
+			buildPhases = (
+				E40073FF16ABEA0100040B4A /* Sources */,
+				E400740016ABEA0100040B4A /* Frameworks */,
+				E400740116ABEA0100040B4A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libatc;
+			productName = libatc;
+			productReference = E400740316ABEA0100040B4A /* libatc.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		E400746516ABED6000040B4A /* libatc_test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E400746D16ABED6000040B4A /* Build configuration list for PBXNativeTarget "libatc_test" */;
+			buildPhases = (
+				E400746216ABED6000040B4A /* Sources */,
+				E400746316ABED6000040B4A /* Frameworks */,
+				E400746416ABED6000040B4A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E400747316ABEDA400040B4A /* PBXTargetDependency */,
+			);
+			name = libatc_test;
+			productName = libatc_test;
+			productReference = E400746616ABED6000040B4A /* libatc_test */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E40073FA16ABEA0100040B4A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = h2so5;
+			};
+			buildConfigurationList = E40073FD16ABEA0100040B4A /* Build configuration list for PBXProject "libatc" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E40073F816ABEA0100040B4A;
+			productRefGroup = E400740416ABEA0100040B4A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E400740216ABEA0100040B4A /* libatc */,
+				E400746516ABED6000040B4A /* libatc_test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E40073FF16ABEA0100040B4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E400741516ABEA3300040B4A /* ATCLocker.cpp in Sources */,
+				E400741716ABEA3300040B4A /* ATCUnlocker.cpp in Sources */,
+				E400741916ABEA3300040B4A /* isaac.c in Sources */,
+				E400741B16ABEA3300040B4A /* Rijndael.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E400746216ABED6000040B4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E400747116ABED8900040B4A /* test.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E400747316ABEDA400040B4A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E400740216ABEA0100040B4A /* libatc */;
+			targetProxy = E400747216ABEDA400040B4A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		E400740516ABEA0100040B4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E400740616ABEA0100040B4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E400740816ABEA0100040B4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				EXECUTABLE_PREFIX = lib;
+				GCC_VERSION = "";
+				PRODUCT_NAME = atc;
+			};
+			name = Debug;
+		};
+		E400740916ABEA0100040B4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				EXECUTABLE_PREFIX = lib;
+				GCC_VERSION = "";
+				PRODUCT_NAME = atc;
+			};
+			name = Release;
+		};
+		E400746E16ABED6000040B4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E400746F16ABED6000040B4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E40073FD16ABEA0100040B4A /* Build configuration list for PBXProject "libatc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E400740516ABEA0100040B4A /* Debug */,
+				E400740616ABEA0100040B4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E400740716ABEA0100040B4A /* Build configuration list for PBXNativeTarget "libatc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E400740816ABEA0100040B4A /* Debug */,
+				E400740916ABEA0100040B4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E400746D16ABED6000040B4A /* Build configuration list for PBXNativeTarget "libatc_test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E400746E16ABED6000040B4A /* Debug */,
+				E400746F16ABED6000040B4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E40073FA16ABEA0100040B4A /* Project object */;
+}

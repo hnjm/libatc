@@ -11,3 +11,20 @@
 *.lai
 *.la
 *.a
+
+# Xcode
+*.DS_Store
+xcuserdata
+project.xcworkspace
+
+# VisualStudio
+*.suo
+*.opensdf
+*.sdf
+*.filters
+*.user
+*.ipch
+Debug
+Release
+
+*.atc
