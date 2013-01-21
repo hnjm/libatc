@@ -16,6 +16,7 @@ libatc doesn't provide any platform-dependent functions.
 
 ```cpp
 #include <iostream>
+#include <fstream>
 
 // Using boost for directory operations
 #include <boost/filesystem.hpp>

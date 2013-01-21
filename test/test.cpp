@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <ctime>
+#include <stdexcept>
 
 #include "../ATCUnlocker.h"
 #include "../ATCLocker.h"
@@ -17,20 +18,74 @@
 
 using namespace std;
 
+string test_path = "./test/";
+int total = 0;
+int succeeded = 0;
+
 #define ASSERT(expression) \
 { \
 	if (!(expression)) \
 	{ \
-		cout << "Assertion failed in line " << __LINE__ << " : " << #expression << endl; \
-		cout << "*** FAILED ***" << endl; \
-		exit(EXIT_FAILURE); \
-	} else \
-	{ \
-		cout << "PASS:\t" << #expression << endl; \
+		cout << "\tFailed: line " << __LINE__ << " : " << #expression << endl; \
+		return false; \
 	} \
 }
 
+#define TEST(function) \
+{ \
+	total++; \
+	cout << endl << "[Test " << total << "] " << #function << endl; \
+	if (!function()) \
+	{ \
+		cout << "\t*** FAILED ***" << endl << endl; \
+	} else { \
+		cout << "\t*** OK ***" << endl << endl; \
+		succeeded++; \
+	} \
+}
+
+
+// Tests
+bool Self_Encryption_And_Decryption();
+bool Decryption_For_v2_7_5_0();
+bool Decryption_For_v2_7_5_0_Executable();
+bool Decryption_For_v2_8_2_5();
+bool Decryption_For_v2_8_2_5_Executable();
+
 int main()
+{
+
+#ifdef WIN32
+	test_path = "../../test/";
+#endif
+    
+#ifdef __APPLE__
+    test_path = string(__FILE__);
+    test_path.replace(test_path.find_last_of('/'), string::npos, "/");
+#endif
+
+	TEST(Self_Encryption_And_Decryption);
+	TEST(Decryption_For_v2_7_5_0);
+	TEST(Decryption_For_v2_7_5_0_Executable);
+	TEST(Decryption_For_v2_8_2_5);
+	TEST(Decryption_For_v2_8_2_5_Executable);
+
+	cout << "---------------------" << endl;
+	cout << "Result: " << succeeded << "/" << total << endl;
+	if (succeeded == total)
+	{
+		cout << "All Tests Passed" << endl;
+	} else {
+		cout << "*** Test Failed ***" << endl;
+	}
+
+	cout << endl;
+
+	return 0;
+}
+
+
+bool Self_Encryption_And_Decryption()
 {
 	char key[ATC_KEY_SIZE]	= "This is a pen.";
 	char atc_filename[] = "test_.atc";
@@ -45,7 +100,8 @@ int main()
 		locker.set_passwd_try_limit(5);
 		locker.set_self_destruction(true);
 
-		ofstream ofs(atc_filename, ifstream::binary);
+		ofstream ofs(test_path + atc_filename, ifstream::binary);
+		ASSERT(ofs);
 		ASSERT(locker.open(&ofs, key) == ATC_OK);
 
 		{
@@ -90,7 +146,8 @@ int main()
 
 	{
 		ATCUnlocker unlocker;
-		ifstream ifs(atc_filename, ifstream::binary);
+		ifstream ifs(test_path + atc_filename, ifstream::binary);
+		ASSERT(ifs);
 
 		ASSERT(unlocker.open(&ifs, key) == ATC_OK);
 		ASSERT(unlocker.passwd_try_limit() == 5);
@@ -124,9 +181,41 @@ int main()
 
 	}
 
-	cout << "*** SUCCEEDED ***" << endl;
+	return true;
+}
 
-	return 0;
+bool Decryption_Test(const char *filename)
+{
+	char key[ATC_KEY_SIZE] = "cosmos";
+
+	ifstream ifs(test_path + filename, ifstream::binary);
+	ASSERT(ifs);
+
+	ATCUnlocker unlocker;
+	ASSERT(unlocker.open(&ifs, key) == ATC_OK);
+
+	return true;
+}
+
+bool Decryption_For_v2_7_5_0()
+{
+	return Decryption_Test("cosmos_v2.7.5.0.atc.tester");
+}
+
+bool Decryption_For_v2_7_5_0_Executable()
+{
+	return Decryption_Test("cosmos_v2.7.5.0.exe.tester");
+}
+
+bool Decryption_For_v2_8_2_5()
+{
+	return Decryption_Test("cosmos_v2.8.2.5.atc.tester");
+}
+
+bool Decryption_For_v2_8_2_5_Executable()
+{
+	return Decryption_Test("cosmos_v2.8.2.5.exe.tester");
 }
 
 #undef ASSERT
+#undef TEST

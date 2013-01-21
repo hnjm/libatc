@@ -1,4 +1,4 @@
-﻿#include <cassert>
+#include <cassert>
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -165,7 +165,7 @@ total_read_length_(0)
 
 ATCUnlocker_impl::~ATCUnlocker_impl()
 {
-	close();
+
 }
 
 ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
@@ -177,9 +177,9 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	}
 
 	char token[16];
-	const char charTokenString[] = "_AttacheCaseData";
+	const char token_string[] = "_AttacheCaseData";
 
-	char plain_header_info[4] = {0};
+	char plain_header_info[4] = {0, 0, 0, 0};
 	int32_t encrypted_header_size = 0;
 
 	src->seekg(0, ios::beg);
@@ -187,7 +187,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	src->read(token, sizeof(token));
 
 	// トークンを検証
-	if (memcmp(token, charTokenString, sizeof(token)) != 0)
+	if (memcmp(token, token_string, sizeof(token)) != 0)
 	{
 		// 自己実行形式ファイルかどうかチェック
 
@@ -195,14 +195,16 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		int64_t total = src->tellg();
 
 		src->seekg(total - sizeof(int64_t), ios::beg);
-		src->read(reinterpret_cast<char*>(&total_length_), sizeof(total_length_));
-		src->seekg(static_cast<streamoff>(-(total_length_ + sizeof(total_length_))), ios::end);
+		src->read(reinterpret_cast<char*>(&total_length_), sizeof(total_length_)).gcount();
+        
+		src->clear();
+		src->seekg(static_cast<streamoff>(-(total_length_ + sizeof(int64_t))), ios::end);
 
-		src->read(plain_header_info, sizeof(plain_header_info));
+		src->read(plain_header_info, sizeof(plain_header_info)).gcount();
 		src->read(token, sizeof(token));
 
 		// トークンを再チェック
-		if (memcmp(token, charTokenString, sizeof(token)) != 0)
+		if (memcmp(token, token_string, sizeof(token)) != 0)
 		{
 			return ATC_ERR_BROKEN_HEADER;
 		}

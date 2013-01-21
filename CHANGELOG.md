@@ -1,3 +1,9 @@
+v0.8.6
+======
+
+ - Added tests
+ - Fixed a bug in the decryption for the executable format on OSX
+ 
 v0.8.4
 ======
 
