@@ -7,6 +7,11 @@
 #include "../ATCUnlocker.h"
 #include "../ATCLocker.h"
 
+extern "C"
+{
+#include "crc.h"
+}
+
 #ifdef WIN32
 	#ifdef _DEBUG
 		#pragma comment(lib, "zlib_d.lib")
@@ -19,6 +24,8 @@
 using namespace std;
 
 string test_path = "./test/";
+
+
 int total = 0;
 int succeeded = 0;
 
@@ -65,8 +72,8 @@ int main()
 #endif
 
 	TEST(Self_Encryption_And_Decryption);
-	TEST(Decryption_For_v2_7_5_0);
-	TEST(Decryption_For_v2_7_5_0_Executable);
+	//TEST(Decryption_For_v2_7_5_0);
+	//TEST(Decryption_For_v2_7_5_0_Executable);
 	TEST(Decryption_For_v2_8_2_5);
 	TEST(Decryption_For_v2_8_2_5_Executable);
 
@@ -87,7 +94,7 @@ int main()
 
 bool Self_Encryption_And_Decryption()
 {
-	char key[ATC_KEY_SIZE]	= "This is a pen.";
+	char key[ATC_KEY_SIZE] = "This is a pen.";
 	char atc_filename[] = "test_.atc";
 
 	stringstream test_data("The quick brown fox jumps over the lazy dog");
@@ -188,11 +195,44 @@ bool Decryption_Test(const char *filename)
 {
 	char key[ATC_KEY_SIZE] = "cosmos";
 
+	static unsigned short test_crc = 0;
+	if (test_crc == 0)
+	{
+		ifstream ifs(test_path + "cosmos.jpg", ifstream::binary);
+
+		ifs.seekg(0, ios::end);
+		size_t length = ifs.tellg();
+		ifs.seekg(0, ios::beg);
+
+		char *buffer = new char[length];
+		ifs.read(buffer, length);
+
+		crcInit();
+		test_crc = crcFast(reinterpret_cast<const unsigned char*>(buffer), length);
+
+		delete[] buffer;
+	}
+
 	ifstream ifs(test_path + filename, ifstream::binary);
 	ASSERT(ifs);
 
 	ATCUnlocker unlocker;
 	ASSERT(unlocker.open(&ifs, key) == ATC_OK);
+	ASSERT(unlocker.getEntryLength() == 1);
+
+	{
+		ATCFileEntry entry;
+		ASSERT(unlocker.getEntry(&entry, 0) == ATC_OK);
+
+		stringstream buffer;
+		ASSERT(unlocker.extractFileData(&buffer, &ifs, entry.size) == ATC_OK);
+
+		crcInit();
+		unsigned short crc = 
+			crcFast(reinterpret_cast<const unsigned char*>(buffer.str().data()), buffer.str().size());
+
+		ASSERT(test_crc == crc);
+	}
 
 	return true;
 }

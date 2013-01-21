@@ -1,3 +1,8 @@
+v0.8.7
+======
+
+ - Added CRC error checking to tests
+
 v0.8.6
 ======
 

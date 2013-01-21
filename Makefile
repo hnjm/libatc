@@ -11,7 +11,7 @@ OBJS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 OBJS += $(patsubst %.c,%.o,$(wildcard *.c))
 
 TEST_TARGET = ./test/test
-TEST_OBJS := ./test/test.o
+TEST_OBJS := ./test/test.o ./test/crc.o
 
 all: $(TARGET) $(TEST_TARGET)
 
