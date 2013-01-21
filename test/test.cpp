@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <ctime>
 
 #include "../ATCUnlocker.h"
@@ -31,7 +33,7 @@ using namespace std;
 int main()
 {
 	char key[ATC_KEY_SIZE]	= "This is a pen.";
-	char atc_filename[]		= "test_.atc";
+	char atc_filename[] = "test_.atc";
 
 	stringstream test_data("The quick brown fox jumps over the lazy dog");
 	stringstream test_data2("Quo usque tandem abutere, Catilina, patientia nostra?");

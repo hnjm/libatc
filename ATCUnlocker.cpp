@@ -1,9 +1,152 @@
 ﻿#include <cassert>
+#include <ctime>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
-#include "ATCUnlocker.h"
+#include <zlib.h>
+
 #include "Rijndael.h"
 
+#include "ATCCommon.h"
+#include "ATCUnlocker.h"
+
+
+
+//
+// Implementation definition
+//
+
+
+class ATCUnlocker_impl
+{
+public:
+	ATCUnlocker_impl();
+	~ATCUnlocker_impl();
+
+	ATCResult open(istream *src, const char key[ATC_KEY_SIZE]);
+	ATCResult close();
+
+	size_t getEntryLength() const;
+	ATCResult getEntry(ATCFileEntry *entry, size_t index);
+	ATCResult extractFileData(ostream *dst, istream *src, size_t length);
+
+public:
+	int32_t data_version() const;
+	char data_sub_version() const;
+	int32_t algorism_type() const;
+	char passwd_try_limit() const;
+	bool self_destruction() const;
+
+private:
+	void decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
+	bool parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8 = "");
+
+private:
+	int32_t data_version_;
+	char data_sub_version_;
+	int32_t algorism_type_;
+	char passwd_try_limit_;
+	bool self_destruction_;
+	string create_date_string_;
+	
+	int64_t total_length_;
+	int64_t total_read_length_;
+
+	CRijndael rijndael_;
+	char chain_buffer_[ATC_BUF_SIZE];
+
+	z_stream z_;
+	int32_t z_flush_, z_status_;
+	char input_buffer_[ATC_BUF_SIZE];
+	char output_buffer_[ATC_LARGE_BUF_SIZE];
+	string tmp_buffer_;
+
+	vector<ATCFileEntry> entries_;
+};
+
+
+
+//
+// Interface
+//
+
+
 ATCUnlocker::ATCUnlocker() :
+
+impl_(NULL)
+
+{
+	impl_ = new ATCUnlocker_impl();
+}
+
+ATCUnlocker::~ATCUnlocker()
+{
+	if (impl_)
+	{
+		delete impl_;
+		impl_ = NULL;
+	}
+}
+
+ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
+{
+	return impl_->open(src, key);
+}
+
+ATCResult ATCUnlocker::close()
+{
+	return impl_->close();
+}
+
+size_t ATCUnlocker::getEntryLength() const
+{
+	return impl_->getEntryLength();
+}
+
+ATCResult ATCUnlocker::getEntry(ATCFileEntry *entry, size_t index)
+{
+	return impl_->getEntry(entry, index);
+}
+
+ATCResult ATCUnlocker::extractFileData(ostream *dst, istream *src, size_t length)
+{
+	return impl_->extractFileData(dst, src, length);
+}
+
+int32_t ATCUnlocker::data_version() const
+{
+	return impl_->data_version();
+}
+
+char ATCUnlocker::data_sub_version() const
+{
+	return impl_->data_sub_version();
+}
+
+int32_t ATCUnlocker::algorism_type() const
+{
+	return impl_->algorism_type();
+}
+
+char ATCUnlocker::passwd_try_limit() const
+{
+	return impl_->passwd_try_limit();
+}
+
+bool ATCUnlocker::self_destruction() const
+{
+	return impl_->self_destruction();
+}
+
+
+
+//
+// Implementation
+//
+
+
+ATCUnlocker_impl::ATCUnlocker_impl() :
 
 data_version_(ATC_DATA_FILE_VERSION),
 data_sub_version_(ATC_DATA_SUB_VERSION),
@@ -20,12 +163,12 @@ total_read_length_(0)
 }
 
 
-ATCUnlocker::~ATCUnlocker()
+ATCUnlocker_impl::~ATCUnlocker_impl()
 {
 	close();
 }
 
-ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
+ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 {
 	const char zero[ATC_BUF_SIZE] = {0};
 	if (memcmp(zero, key, ATC_BUF_SIZE) == 0)
@@ -39,6 +182,7 @@ ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
 	char plain_header_info[4] = {0};
 	int32_t encrypted_header_size = 0;
 
+	src->seekg(0, ios::beg);
 	src->read(plain_header_info, sizeof(plain_header_info));
 	src->read(token, sizeof(token));
 
@@ -117,6 +261,15 @@ ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
 
 		decryptBuffer(source_buffer, chain_buffer_);
 
+		// 最初のブロックで復号に成功したかどうかチェック
+		if (len == ATC_BUF_SIZE)
+		{
+			if (string(source_buffer, ATC_BUF_SIZE).find("AttacheCase") == string::npos)
+			{
+				return ATC_ERR_WRONG_KEY;
+			}
+		}
+
 		pms.write(source_buffer, ATC_BUF_SIZE);
 	}
 
@@ -134,11 +287,9 @@ ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
 		}
 	}
 
-	// 復号に成功したかどうかチェック
-	bool correct_passwd = !(DataList.size() == 0 || DataList[0].find("AttacheCase") == string::npos);
-	if (!correct_passwd)
+	if (DataList.size() == 0)
 	{
-		return ATC_ERR_WRONG_KEY;
+		return ATC_ERR_BROKEN_HEADER;
 	}
 
 	create_date_string_ = DataList[1];
@@ -211,7 +362,7 @@ ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])
 	return ATC_OK;
 }
 
-ATCResult ATCUnlocker::close()
+ATCResult ATCUnlocker_impl::close()
 {
 	if (inflateEnd(&z_) != Z_OK)
 	{
@@ -221,7 +372,7 @@ ATCResult ATCUnlocker::close()
 	}
 }
 
-ATCResult ATCUnlocker::getEntry(ATCFileEntry *entry, size_t index)
+ATCResult ATCUnlocker_impl::getEntry(ATCFileEntry *entry, size_t index)
 {
 	if (index < entries_.size())
 	{
@@ -232,7 +383,7 @@ ATCResult ATCUnlocker::getEntry(ATCFileEntry *entry, size_t index)
 	}
 }
 
-ATCResult ATCUnlocker::extractFileData(ostream *dst, istream *src, size_t length)
+ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t length)
 {
 	while (z_status_ != Z_STREAM_END)
 	{
@@ -318,7 +469,7 @@ ATCResult ATCUnlocker::extractFileData(ostream *dst, istream *src, size_t length
 	return ATC_OK;
 }
 
-void ATCUnlocker::decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
+void ATCUnlocker_impl::decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
 {
 	char temp_buffer[ATC_BUF_SIZE] = {0};
 
@@ -359,7 +510,7 @@ namespace {
 	}
 }
 
-bool ATCUnlocker::parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8)
+bool ATCUnlocker_impl::parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8)
 {
 	size_t start_pos = tsv_sjis.find(':') + 1;
 	size_t tab_pos = tsv_sjis.find('\t', start_pos);
@@ -408,27 +559,32 @@ bool ATCUnlocker::parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sji
 	return true;
 }
 
-size_t ATCUnlocker::getEntryLength() const
+size_t ATCUnlocker_impl::getEntryLength() const
 {
 	return entries_.size();
 }
 
-int32_t ATCUnlocker::data_version() const
+int32_t ATCUnlocker_impl::data_version() const
 {
 	return data_version_;
 }
 
-char ATCUnlocker::data_sub_version() const
+char ATCUnlocker_impl::data_sub_version() const
 {
 	return data_sub_version_;
 }
 
-char ATCUnlocker::passwd_try_limit() const
+int32_t ATCUnlocker_impl::algorism_type() const
+{
+	return algorism_type_;
+}
+
+char ATCUnlocker_impl::passwd_try_limit() const
 {
 	return passwd_try_limit_;
 }
 
-bool ATCUnlocker::self_destruction() const
+bool ATCUnlocker_impl::self_destruction() const
 {
 	return self_destruction_;
 }

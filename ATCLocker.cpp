@@ -1,15 +1,165 @@
 ﻿#include <cassert>
 #include <ctime>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
 #include <zlib.h>
 
-#include "ATCLocker.h"
+#include "Rijndael.h"
 #include "isaac.h"
+
+#include "ATCCommon.h"
+#include "ATCLocker.h"
 
 #ifdef unix
 #undef unix
 #endif
 
+
+
+//
+// Implementation definition
+//
+
+
+class ATCLocker_impl
+{
+public:
+	ATCLocker_impl();
+	~ATCLocker_impl();
+
+	ATCResult open(ostream *dst, const char key[ATC_KEY_SIZE]);
+	ATCResult close();
+
+	ATCResult addFileEntry(const ATCFileEntry& entry);
+	ATCResult writeEncryptedHeader(ostream *dst);
+	ATCResult writeFileData(ostream *dst, istream *src, size_t length);
+
+public:
+	char passwd_try_limit() const;
+	bool self_destruction() const;
+	int32_t compression_level() const;
+
+	void set_passwd_try_limit(char passwd_try_limit);
+	void set_self_destruction(bool self_destruction);
+	void set_compression_level(int32_t compression_level);
+
+private:
+	void fillrand(char *buf, const int len);
+	void getCurrentDateString(string *dst);
+	void encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
+	ATCResult finish();
+
+private:
+	char passwd_try_limit_;
+	bool self_destruction_;
+	int32_t compression_level_;
+
+	int64_t total_length_;
+	int64_t total_write_length_;
+
+	CRijndael rijndael_;
+	char chain_buffer_[ATC_BUF_SIZE];
+
+	z_stream z_;
+	int32_t z_flush_, z_status_;
+	char input_buffer_[ATC_BUF_SIZE];
+	char output_buffer_[ATC_BUF_SIZE];
+	string tmp_buffer_;
+
+	bool finished_;
+
+	vector<ATCFileEntry> entries_;
+};
+
+
+
+//
+// Interface
+//
+
+
 ATCLocker::ATCLocker() :
+
+impl_(NULL)
+
+{
+	impl_ = new ATCLocker_impl();
+}
+
+ATCLocker::~ATCLocker()
+{
+	if (impl_)
+	{
+		delete impl_;
+		impl_ = NULL;
+	}
+}
+
+ATCResult ATCLocker::open(ostream *dst, const char key[ATC_KEY_SIZE])
+{
+	return impl_->open(dst, key);
+}
+
+ATCResult ATCLocker::close()
+{
+	return impl_->close();
+}
+
+ATCResult ATCLocker::addFileEntry(const ATCFileEntry& entry)
+{
+	return impl_->addFileEntry(entry);
+}
+
+ATCResult ATCLocker::writeEncryptedHeader(ostream *dst)
+{
+	return impl_->writeEncryptedHeader(dst);
+}
+
+ATCResult ATCLocker::writeFileData(ostream *dst, istream *src, size_t length)
+{
+	return impl_->writeFileData(dst, src, length);
+}
+
+char ATCLocker::passwd_try_limit() const
+{
+	return impl_->passwd_try_limit();
+}
+
+bool ATCLocker::self_destruction() const
+{
+	return impl_->self_destruction();
+}
+
+int32_t ATCLocker::compression_level() const
+{
+	return impl_->compression_level();
+}
+
+void ATCLocker::set_passwd_try_limit(char passwd_try_limit)
+{
+	impl_->set_passwd_try_limit(passwd_try_limit);
+}
+
+void ATCLocker::set_self_destruction(bool self_destruction)
+{
+	impl_->set_self_destruction(self_destruction);
+}
+
+void ATCLocker::set_compression_level(int32_t compression_level)
+{
+	impl_->set_compression_level(compression_level);
+}
+
+
+
+//
+// Implementation
+//
+
+
+ATCLocker_impl::ATCLocker_impl() :
 
 passwd_try_limit_(ATC_DEFAULT_PASSWORD_TRY_LIMIT),
 self_destruction_(false),
@@ -24,12 +174,12 @@ finished_(false)
 }
 
 
-ATCLocker::~ATCLocker()
+ATCLocker_impl::~ATCLocker_impl()
 {
 	close();
 }
 
-ATCResult ATCLocker::open(ostream *dst, const char key[ATC_KEY_SIZE])
+ATCResult ATCLocker_impl::open(ostream *dst, const char key[ATC_KEY_SIZE])
 {
 	const char zero[ATC_KEY_SIZE] = {0};
 	if (memcmp(zero, key, ATC_KEY_SIZE) == 0)
@@ -75,12 +225,12 @@ ATCResult ATCLocker::open(ostream *dst, const char key[ATC_KEY_SIZE])
 	}
 }
 
-ATCResult ATCLocker::close()
+ATCResult ATCLocker_impl::close()
 {
-	return ATCLocker::finish();
+	return ATCLocker_impl::finish();
 }
 
-ATCResult ATCLocker::addFileEntry(const ATCFileEntry& entry)
+ATCResult ATCLocker_impl::addFileEntry(const ATCFileEntry& entry)
 {
 	if (entry.name_sjis.size() > 0 && entry.name_utf8.size())
 	{
@@ -120,7 +270,7 @@ namespace {
 	}
 }
 
-ATCResult ATCLocker::writeEncryptedHeader(ostream *dst)
+ATCResult ATCLocker_impl::writeEncryptedHeader(ostream *dst)
 {
 	string date_string;
 	getCurrentDateString(&date_string);
@@ -212,7 +362,7 @@ ATCResult ATCLocker::writeEncryptedHeader(ostream *dst)
 	return ATC_OK;
 }
 
-ATCResult ATCLocker::writeFileData(ostream *dst, istream *src, size_t length)
+ATCResult ATCLocker_impl::writeFileData(ostream *dst, istream *src, size_t length)
 {
 	int rest_length = length;
     while (1)
@@ -283,7 +433,7 @@ ATCResult ATCLocker::writeFileData(ostream *dst, istream *src, size_t length)
 	return ATC_OK;
 }
 
-ATCResult ATCLocker::finish()
+ATCResult ATCLocker_impl::finish()
 {
 	if (!finished_)
 	{
@@ -297,7 +447,7 @@ ATCResult ATCLocker::finish()
 	return ATC_OK;
 }
 
-void ATCLocker::fillrand(char *buf, const int len)
+void ATCLocker_impl::fillrand(char *buf, const int len)
 {
 	static unsigned long count = 4;
 	static char          r[4];
@@ -318,7 +468,7 @@ void ATCLocker::fillrand(char *buf, const int len)
 	}
 }
 
-void ATCLocker::getCurrentDateString(string *dst)
+void ATCLocker_impl::getCurrentDateString(string *dst)
 {
 	time_t rawtime;
 	struct tm timeinfo;
@@ -338,7 +488,7 @@ void ATCLocker::getCurrentDateString(string *dst)
 }
 
 
-void ATCLocker::encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
+void ATCLocker_impl::encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
 {
 	// xor
 	for (int i = 0; i < ATC_BUF_SIZE; i++ ){
@@ -354,32 +504,32 @@ void ATCLocker::encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC
 	}
 }
 
-char ATCLocker::passwd_try_limit() const
+char ATCLocker_impl::passwd_try_limit() const
 {
 	return passwd_try_limit_;
 }
 
-bool ATCLocker::self_destruction() const
+bool ATCLocker_impl::self_destruction() const
 {
 	return self_destruction_;
 }
 
-int32_t ATCLocker::compression_level() const
+int32_t ATCLocker_impl::compression_level() const
 {
 	return compression_level_;
 }
 
-void ATCLocker::set_passwd_try_limit(const char passwd_try_limit)
+void ATCLocker_impl::set_passwd_try_limit(const char passwd_try_limit)
 {
 	passwd_try_limit_ = passwd_try_limit;
 }
 
-void ATCLocker::set_self_destruction(const bool self_destruction)
+void ATCLocker_impl::set_self_destruction(const bool self_destruction)
 {
 	self_destruction_ = self_destruction;
 }
 
-void ATCLocker::set_compression_level(const int32_t compression_level)
+void ATCLocker_impl::set_compression_level(const int32_t compression_level)
 {
 	compression_level_ = compression_level;
 }

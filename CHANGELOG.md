@@ -1,3 +1,9 @@
+v0.8.4
+======
+
+ - Separated interfaces and implementation
+ - Made the key validation faster
+
 v0.8.1
 ======
 

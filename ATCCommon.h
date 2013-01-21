@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include <string>
-#include <sstream>
-#include <vector>
 #include <cstdint>
 
 #include "ATCCommon.h"
@@ -48,10 +45,14 @@ enum ATCResult{
 };
 
 struct ATCFileEntry{
+
 	string  name_sjis;
 	string  name_utf8;
+
 	int64_t size;
 	int32_t attribute;
+
 	time_t change_unix_time;
 	time_t create_unix_time;
+
 };
