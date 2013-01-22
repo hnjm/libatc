@@ -117,7 +117,7 @@ int main()
     locker.set_compression_level(Z_BEST_COMPRESSION);
     locker.set_passwd_try_limit(10);
     locker.set_self_destruction(false);
-    locker.set_create_time(NULL);
+    locker.set_create_time(time(NULL));
 
     ofstream ofs(atc_filename, ifstream::binary);
     locker.open(&ofs, key);
