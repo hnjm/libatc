@@ -1,3 +1,9 @@
+v0.8.9
+======
+
+ - Added options to ATCLocker
+ - Added source files for implementation
+
 v0.8.8
 ======
 

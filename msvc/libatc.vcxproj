@@ -84,14 +84,18 @@
   <ItemGroup>
     <ClInclude Include="..\ATCCommon.h" />
     <ClInclude Include="..\ATCLocker.h" />
+    <ClInclude Include="..\ATCLocker_impl.h" />
     <ClInclude Include="..\ATCUnlocker.h" />
+    <ClInclude Include="..\ATCUnlocker_impl.h" />
     <ClInclude Include="..\isaac.h" />
     <ClInclude Include="..\Rijndael.h" />
     <ClInclude Include="..\standard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ATCLocker.cpp" />
+    <ClCompile Include="..\ATCLocker_impl.cpp" />
     <ClCompile Include="..\ATCUnlocker.cpp" />
+    <ClCompile Include="..\ATCUnlocker_impl.cpp" />
     <ClCompile Include="..\isaac.c" />
     <ClCompile Include="..\Rijndael.cpp" />
   </ItemGroup>

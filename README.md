@@ -8,16 +8,19 @@ C++ Library for the [AttacheCase](http://github.com/hibara/AttacheCase) file for
 
 libatc doesn't provide any platform-dependent functions.
    
-## Build
+
+## Usage
 ======
 
-### Windows (Visual Studio 2010)
+### Build
+
+#### Windows (Visual Studio 2010)
 Open __libatc/msvc/libatc.sln__
 
-### Mac OS X
+#### Mac OS X
 Open __libatc/xcode/libatc.xcodeproj__
 
-### Linux (GCC)
+#### Linux (GCC)
 
 You need zlib header and binary.
 
@@ -26,9 +29,6 @@ $ cd libatc
 $ make
 $ make test
 ```
-
-## Usage
-======
 
 ### Decryption
 
@@ -99,6 +99,8 @@ int main()
 ```cpp
 #include <iostream>
 #include <fstream>
+#include <ctime>
+#include <zlib.h>
 
 #include "ATCLocker.h"
 
@@ -115,6 +117,7 @@ int main()
     locker.set_compression_level(Z_BEST_COMPRESSION);
     locker.set_passwd_try_limit(10);
     locker.set_self_destruction(false);
+    locker.set_create_time(NULL);
 
     ofstream ofs(atc_filename, ifstream::binary);
     locker.open(&ofs, key);

@@ -21,6 +21,10 @@
 		E400747416ABEE1800040B4A /* libatc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E400740316ABEA0100040B4A /* libatc.a */; };
 		E400747716ABEE9400040B4A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E400747616ABEE9400040B4A /* libz.dylib */; };
 		E4C9176C16AD9773007E9EC5 /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = E4C9176B16AD9773007E9EC5 /* crc.c */; };
+		E4D5803A16AEC0BA007F8AB4 /* ATCLocker_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803616AEC0BA007F8AB4 /* ATCLocker_impl.cpp */; };
+		E4D5803B16AEC0BA007F8AB4 /* ATCLocker_impl.h in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803716AEC0BA007F8AB4 /* ATCLocker_impl.h */; };
+		E4D5803C16AEC0BA007F8AB4 /* ATCUnlocker_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803816AEC0BA007F8AB4 /* ATCUnlocker_impl.cpp */; };
+		E4D5803D16AEC0BA007F8AB4 /* ATCUnlocker_impl.h in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803916AEC0BA007F8AB4 /* ATCUnlocker_impl.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +65,10 @@
 		E400747016ABED8900040B4A /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../test/test.cpp; sourceTree = "<group>"; };
 		E400747616ABEE9400040B4A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E4C9176B16AD9773007E9EC5 /* crc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = crc.c; path = ../test/crc.c; sourceTree = "<group>"; };
+		E4D5803616AEC0BA007F8AB4 /* ATCLocker_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ATCLocker_impl.cpp; path = ../ATCLocker_impl.cpp; sourceTree = "<group>"; };
+		E4D5803716AEC0BA007F8AB4 /* ATCLocker_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ATCLocker_impl.h; path = ../ATCLocker_impl.h; sourceTree = "<group>"; };
+		E4D5803816AEC0BA007F8AB4 /* ATCUnlocker_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ATCUnlocker_impl.cpp; path = ../ATCUnlocker_impl.cpp; sourceTree = "<group>"; };
+		E4D5803916AEC0BA007F8AB4 /* ATCUnlocker_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ATCUnlocker_impl.h; path = ../ATCUnlocker_impl.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +101,10 @@
 				E400740C16ABEA3300040B4A /* ATCLocker.h */,
 				E400740D16ABEA3300040B4A /* ATCUnlocker.cpp */,
 				E400740E16ABEA3300040B4A /* ATCUnlocker.h */,
+				E4D5803616AEC0BA007F8AB4 /* ATCLocker_impl.cpp */,
+				E4D5803716AEC0BA007F8AB4 /* ATCLocker_impl.h */,
+				E4D5803816AEC0BA007F8AB4 /* ATCUnlocker_impl.cpp */,
+				E4D5803916AEC0BA007F8AB4 /* ATCUnlocker_impl.h */,
 				E400740F16ABEA3300040B4A /* isaac.c */,
 				E400741016ABEA3300040B4A /* isaac.h */,
 				E400741116ABEA3300040B4A /* Rijndael.cpp */,
@@ -206,6 +218,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4D5803A16AEC0BA007F8AB4 /* ATCLocker_impl.cpp in Sources */,
+				E4D5803B16AEC0BA007F8AB4 /* ATCLocker_impl.h in Sources */,
+				E4D5803C16AEC0BA007F8AB4 /* ATCUnlocker_impl.cpp in Sources */,
+				E4D5803D16AEC0BA007F8AB4 /* ATCUnlocker_impl.h in Sources */,
 				E400741516ABEA3300040B4A /* ATCLocker.cpp in Sources */,
 				E400741716ABEA3300040B4A /* ATCUnlocker.cpp in Sources */,
 				E400741916ABEA3300040B4A /* isaac.c in Sources */,

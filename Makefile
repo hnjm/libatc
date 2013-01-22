@@ -2,7 +2,7 @@ CC = gcc
 CXX = g++
 LD = g++
 
-CXXFLAGS = -O3 -std=gnu++0x
+CXXFLAGS = -DNODEBUG -O3 -std=gnu++0x
 LIBS = -latc -lz
 LIBDIRS = -L.
 
