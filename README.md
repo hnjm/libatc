@@ -8,19 +8,16 @@ C++ Library for the [AttacheCase](http://github.com/hibara/AttacheCase) file for
 
 libatc doesn't provide any platform-dependent functions.
    
-
-## Usage
+## Build
 ======
 
-### Build
-
-#### Windows (Visual Studio 2010)
+### Windows (Visual Studio 2010)
 Open __libatc/msvc/libatc.sln__
 
-#### Mac OS X
+### Mac OS X
 Open __libatc/xcode/libatc.xcodeproj__
 
-#### Linux (GCC)
+### Linux (GCC)
 
 You need zlib header and binary.
 
@@ -29,6 +26,9 @@ $ cd libatc
 $ make
 $ make test
 ```
+
+## Usage
+======
 
 ### Decryption
 
