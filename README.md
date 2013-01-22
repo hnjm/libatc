@@ -3,7 +3,7 @@ libatc
 
 C++ Library for the [AttacheCase](http://github.com/hibara/AttacheCase) file format
 
-* Decryption for *.atc and *.exe format
+* Decryption for *.atc and *.exe format (Format Version 2.7.x and 2.8.x only)
 * Encryption for *.atc format
 
 libatc doesn't provide any platform-dependent functions.
@@ -11,6 +11,24 @@ libatc doesn't provide any platform-dependent functions.
 
 ## Usage
 ======
+
+### Build
+
+#### Windows (Visual Studio 2010)
+Open __libatc/msvc/libatc.sln__
+
+#### Mac OS X
+Open __libatc/xcode/libatc.xcodeproj__
+
+#### Linux (GCC)
+
+You need zlib header and binary.
+
+```bash
+$ cd libatc
+$ make
+$ make test
+```
 
 ### Decryption
 

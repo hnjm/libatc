@@ -337,7 +337,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	src->seekg(cursor);
 
 	// ファイル（データ本体）サイズを取得する
-	total_length_ = file_length - cursor;
+	total_length_ = file_length - cursor - ATC_BUF_SIZE;
 
 	// IVの読み出し
 	src->read(chain_buffer_, ATC_BUF_SIZE);
@@ -392,7 +392,7 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 		if (z_.avail_in == 0)
 		{
 			z_.next_in = reinterpret_cast<Bytef*>(input_buffer_);
-
+			
 			streamsize read_length = src->read(input_buffer_, ATC_BUF_SIZE).gcount();
 			total_read_length_ += read_length;
 
@@ -433,7 +433,12 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 
 		if (z_status_ != Z_OK)
 		{
-			return ATC_ERR_ZLIB_ERROR;
+			if (z_status_ == Z_BUF_ERROR)
+			{
+				z_.avail_out = 0;
+			} else {
+				return ATC_ERR_ZLIB_ERROR;
+			}
 		}
 
 		if (z_.avail_out == 0)

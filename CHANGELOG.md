@@ -1,3 +1,9 @@
+v0.8.8
+======
+
+ - Fixed a bug in the decryption for v2.7.x format
+ - Added build information to README.md
+ 
 v0.8.7
 ======
 

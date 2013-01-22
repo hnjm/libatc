@@ -72,8 +72,8 @@ int main()
 #endif
 
 	TEST(Self_Encryption_And_Decryption);
-	//TEST(Decryption_For_v2_7_5_0);
-	//TEST(Decryption_For_v2_7_5_0_Executable);
+	TEST(Decryption_For_v2_7_5_0);
+	TEST(Decryption_For_v2_7_5_0_Executable);
 	TEST(Decryption_For_v2_8_2_5);
 	TEST(Decryption_For_v2_8_2_5_Executable);
 
