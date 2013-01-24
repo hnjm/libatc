@@ -1,6 +1,8 @@
 libatc
 ======
 
+[![Build Status](https://travis-ci.org/h2so5/libatc.png?branch=master)](https://travis-ci.org/h2so5/libatc)
+
 C++ Library for the [AttacheCase](http://github.com/hibara/AttacheCase) file format
 
 * Decryption for *.atc and *.exe format (Format Version 2.7.x and 2.8.x only)

@@ -54,6 +54,8 @@ int succeeded = 0;
 
 // Tests
 bool Self_Encryption_And_Decryption();
+bool Decryption_For_v1_46();
+bool Decryption_For_v1_46_Executable();
 bool Decryption_For_v2_7_5_0();
 bool Decryption_For_v2_7_5_0_Executable();
 bool Decryption_For_v2_8_2_5();
@@ -72,6 +74,8 @@ int main()
 #endif
 
 	TEST(Self_Encryption_And_Decryption);
+	// TEST(Decryption_For_v1_46);
+	// TEST(Decryption_For_v1_46_Executable);
 	TEST(Decryption_For_v2_7_5_0);
 	TEST(Decryption_For_v2_7_5_0_Executable);
 	TEST(Decryption_For_v2_8_2_5);
@@ -79,16 +83,16 @@ int main()
 
 	cout << "---------------------" << endl;
 	cout << "Result: " << succeeded << "/" << total << endl;
+
 	if (succeeded == total)
 	{
-		cout << "All Tests Passed" << endl;
+		cout << "All Tests Passed" << endl << endl;
+		return EXIT_SUCCESS;
 	} else {
-		cout << "*** Test Failed ***" << endl;
+		cout << "*** Test Failed ***" << endl << endl;
+		return EXIT_FAILURE;
 	}
 
-	cout << endl;
-
-	return 0;
 }
 
 
@@ -235,6 +239,16 @@ bool Decryption_Test(const char *filename)
 	}
 
 	return true;
+}
+
+bool Decryption_For_v1_46()
+{
+	return Decryption_Test("cosmos_v1.46.atc.tester");
+}
+
+bool Decryption_For_v1_46_Executable()
+{
+	return Decryption_Test("cosmos_v1.46.exe.tester");
 }
 
 bool Decryption_For_v2_7_5_0()
