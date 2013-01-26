@@ -191,7 +191,7 @@ int main()
 
 
 ## Copyright notice: libatc
-Copyright (c) 2013 h2so5
+Copyright (c) 2013 h2so5 <mail@h2so5.net>
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
