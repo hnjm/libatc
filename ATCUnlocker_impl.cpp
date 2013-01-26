@@ -1,4 +1,4 @@
-#include "ATCUnlocker_impl.h"
+﻿#include "ATCUnlocker_impl.h"
 
 
 ATCUnlocker_impl::ATCUnlocker_impl() :
@@ -32,7 +32,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	}
 
 	char token[16];
-	const char token_string[] = "_AttacheCaseData";
+	static const char token_string[] = "_AttacheCaseData";
 
 	char plain_header_info[4] = {0, 0, 0, 0};
 	int32_t encrypted_header_size = 0;
@@ -121,8 +121,10 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		// 最初のブロックで復号に成功したかどうかチェック
 		if (len == ATC_BUF_SIZE)
 		{
-			if (string(source_buffer, ATC_BUF_SIZE).find("AttacheCase") == string::npos)
+			if (string(source_buffer, ATC_BUF_SIZE).find("Passcode") == string::npos)
 			{
+				src->clear();
+				src->seekg(0, ios::beg);
 				return ATC_ERR_WRONG_KEY;
 			}
 		}
@@ -130,7 +132,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		pms.write(source_buffer, ATC_BUF_SIZE);
 	}
 
-	pms.seekg(ios::beg);
+	pms.seekg(0, ios::beg);
 
 	vector<string> DataList;
 	while (!pms.eof())
@@ -166,8 +168,8 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		}
 	}
 
-	size_t item_size = sjis_list.size();
-	bool utf8_available = (utf8_list.size() == item_size);
+	const size_t item_size = sjis_list.size();
+	const bool utf8_available = (utf8_list.size() == item_size);
 	for (size_t i = 0; i < item_size; ++i)
 	{
 		bool succeeded = false;
@@ -248,7 +250,7 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 		{
 			z_.next_in = reinterpret_cast<Bytef*>(input_buffer_);
 			
-			streamsize read_length = src->read(input_buffer_, ATC_BUF_SIZE).gcount();
+			const streamsize read_length = src->read(input_buffer_, ATC_BUF_SIZE).gcount();
 			total_read_length_ += read_length;
 
 			decryptBuffer(input_buffer_, chain_buffer_);
@@ -262,7 +264,7 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 
 				if (padding_num > -1)
 				{
-					size_t i;
+					size_t i = 0;
 					for (i = 0; i < ATC_BUF_SIZE; ++i)
 					{
 						if (input_buffer_[ATC_BUF_SIZE - 1 - i] !=  padding_num)
@@ -321,9 +323,8 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 		}
 	}
 
-
-	size_t tmp_buffer_size = tmp_buffer_.size();
-	size_t out_length = (tmp_buffer_size >= length) ? length : tmp_buffer_size;
+	const size_t tmp_buffer_size = tmp_buffer_.size();
+	const size_t out_length = (tmp_buffer_size >= length) ? length : tmp_buffer_size;
 
 	dst->write(tmp_buffer_.data(), out_length);
 	tmp_buffer_.erase(0, out_length);
@@ -345,8 +346,9 @@ void ATCUnlocker_impl::decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buf
 	for (int c = 0; c < ATC_BUF_SIZE; c++)
 	{
 		data_buffer[c] ^= iv_buffer[c];
-		iv_buffer[c] = temp_buffer[c];
 	}
+
+	memcpy(iv_buffer, temp_buffer, ATC_BUF_SIZE);
 }
 
 namespace {
@@ -363,10 +365,10 @@ namespace {
 	time_t ttime_to_unix(int32_t dt, int32_t tm)
 	{
 		// 西洋紀元からUNIX紀元までの日数
-		int32_t const days_between_ad_epoch_and_unix_epoch = 719162;
+		static const int32_t days_between_ad_epoch_and_unix_epoch = 719162;
 
-		int32_t seconds_from_midnight = tm / 1000;
-		int32_t days_from_epoch = dt - days_between_ad_epoch_and_unix_epoch - 1;
+		const int32_t seconds_from_midnight = tm / 1000;
+		const int32_t days_from_epoch = dt - days_between_ad_epoch_and_unix_epoch - 1;
 
 		return days_from_epoch * 60 * 60 * 24 + seconds_from_midnight;
 	}
@@ -374,14 +376,14 @@ namespace {
 
 bool ATCUnlocker_impl::parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8)
 {
-	size_t start_pos = tsv_sjis.find(':') + 1;
+	const size_t start_pos = tsv_sjis.find(':') + 1;
 	size_t tab_pos = tsv_sjis.find('\t', start_pos);
 	entry->name_sjis = tsv_sjis.substr(start_pos, tab_pos - start_pos);
 
 	if (tsv_utf8.size() > 0)
 	{
-		size_t start_pos_utf8 = tsv_utf8.find(':') + 1;
-		size_t tab_pos_utf8 = tsv_utf8.find('\t', start_pos_utf8);
+		const size_t start_pos_utf8 = tsv_utf8.find(':') + 1;
+		const size_t tab_pos_utf8 = tsv_utf8.find('\t', start_pos_utf8);
 		entry->name_utf8 = tsv_utf8.substr(start_pos_utf8, tab_pos_utf8 - start_pos_utf8);
 	}
 

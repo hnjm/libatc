@@ -30,12 +30,12 @@ ATCResult ATCLocker_impl::open(ostream *dst, const char key[ATC_KEY_SIZE])
 		return ATC_ERR_NULL_KEY;
 	}
 
-	const char null[] = {0, 0, 0, 0};
-	const char data_sub_version = ATC_DATA_SUB_VERSION;
+	static const char null[] = {0, 0, 0, 0};
+	static const char data_sub_version = ATC_DATA_SUB_VERSION;
+	static const char token_string[] = "_AttacheCaseData";
+	static const int32_t data_file_version = ATC_DATA_FILE_VERSION;
+	static const int32_t algorism_type = ATC_ALGORISM_TYPE_RIJNDAEL;
 	const char self_destruction = static_cast<char>(self_destruction_);
-	const char token_string[] = "_AttacheCaseData";
-	const int32_t data_file_version = ATC_DATA_FILE_VERSION;
-	const int32_t algorism_type = ATC_ALGORISM_TYPE_RIJNDAEL;
 
 	//データサブバージョン
 	dst->write(&data_sub_version, sizeof(char));
@@ -96,10 +96,10 @@ namespace {
 	void unix_to_ttime(time_t unix, int32_t *dt, int32_t *tm)
 	{
 		// 西洋紀元からUNIX紀元までの日数
-		int32_t const days_between_ad_epoch_and_unix_epoch = 719162;
-		*dt = days_between_ad_epoch_and_unix_epoch + static_cast<int32_t>(unix) / (60 * 60 * 24) + 1;
-
+		static const int32_t days_between_ad_epoch_and_unix_epoch = 719162;
 		struct tm timeinfo;
+		
+		*dt = days_between_ad_epoch_and_unix_epoch + static_cast<int32_t>(unix) / (60 * 60 * 24) + 1;
 
 #ifdef WIN32
 			gmtime_s(&timeinfo, &unix);
@@ -118,7 +118,7 @@ ATCResult ATCLocker_impl::writeEncryptedHeader(ostream *dst)
 	string date_string;
 	getCurrentDateString(&date_string);
 
-	char separator[] = {(char)0xef, (char)0xbb, (char)0xbf};
+	static const char separator[] = {(char)0xef, (char)0xbb, (char)0xbf};
 	string sjis_header = "Passcode:AttacheCase\n\r\nLastDateTime:" + date_string + "\n\r\n";
 	string utf8_header = "Passcode:AttacheCase\n\r\nLastDateTime:" + date_string + "\n\r\n";
 
@@ -132,6 +132,8 @@ ATCResult ATCLocker_impl::writeEncryptedHeader(ostream *dst)
 		utf8_header += it->name_utf8 + "\t";
 
 		string common;
+		common.reserve(128);
+
 		if (it->size < 0) {
 			common += "*\t";
 		} else {
@@ -292,9 +294,8 @@ ATCResult ATCLocker_impl::finish()
 
 void ATCLocker_impl::fillrand(char *buf, const int len)
 {
-	static unsigned long count = 4;
-	static char          r[4];
-	int                  i;
+	unsigned long count = 4;
+	char r[4] = {0};
 
 	// ISAAC ( Cryptographic Random Number Generator )
 	randctx ctx;
@@ -302,8 +303,10 @@ void ATCLocker_impl::fillrand(char *buf, const int len)
 	// init
 	randinit(&ctx, 1);
 
-	for(i = 0; i < len; ++i){
-		if(count == 4){
+	for(int i = 0; i < len; ++i)
+	{
+		if(count == 4)
+		{
 			*(unsigned long*)r = rand(&ctx);
 			count = 0;
 		}
@@ -331,17 +334,15 @@ void ATCLocker_impl::getCurrentDateString(string *dst)
 void ATCLocker_impl::encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
 {
 	// xor
-	for (int i = 0; i < ATC_BUF_SIZE; i++ ){
+	for (int i = 0; i < ATC_BUF_SIZE; i++ )
+	{
 		data_buffer[i] ^= iv_buffer[i];
 	}
 
 	// rijndael
 	rijndael_.EncryptBlock(data_buffer, data_buffer);
 
-	//CBC
-	for (int i = 0; i < ATC_BUF_SIZE; i++ ){
-		iv_buffer[i] = data_buffer[i];
-	}
+	memcpy(iv_buffer, data_buffer, ATC_BUF_SIZE);
 }
 
 char ATCLocker_impl::passwd_try_limit() const
