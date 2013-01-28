@@ -37,10 +37,16 @@ freely, subject to the following restrictions:
 
 #include "ATCCommon.h"
 
+#ifdef USE_CLI
+	#using<system.dll>
+	using namespace System;
+	using namespace System::IO;
+	using namespace System::Text;
+#endif
+
 #ifdef unix
 #undef unix
 #endif
-
 
 class ATCLocker_impl
 {
@@ -54,6 +60,12 @@ public:
 	ATCResult addFileEntry(const ATCFileEntry& entry);
 	ATCResult writeEncryptedHeader(ostream *dst);
 	ATCResult writeFileData(ostream *dst, istream *src, size_t length);
+
+#ifdef USE_CLI
+	ATCResult open(Stream ^dst, array<System::Byte, 1> ^key);
+	ATCResult writeEncryptedHeader(Stream ^dst);
+	ATCResult writeFileData(Stream ^dst, Stream ^src, size_t length);
+#endif
 
 public:
 	char passwd_try_limit() const;
@@ -70,6 +82,9 @@ private:
 	void fillrand(char *buf, const int len);
 	void getCurrentDateString(string *dst);
 	void encryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
+	bool initZlib();
+	void generatePlainHeader(string *dst);
+	void generateEncryptedHeader(stringstream *dst);
 	ATCResult finish();
 
 private:

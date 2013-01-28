@@ -24,7 +24,12 @@ project.xcworkspace
 *.filters
 *.user
 *.ipch
+*.trx
+*.vsmdi
+*.testsettings
+TestResults
 Debug
 Release
+dll
 
 *.atc

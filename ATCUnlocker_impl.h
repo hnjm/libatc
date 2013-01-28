@@ -36,6 +36,12 @@ freely, subject to the following restrictions:
 #include "ATCCommon.h"
 #include "ATCUnlocker.h"
 
+#ifdef USE_CLI
+	#using<system.dll>
+	using namespace System;
+	using namespace System::IO;
+	using namespace System::Text;
+#endif
 
 class ATCUnlocker_impl
 {
@@ -50,6 +56,11 @@ public:
 	ATCResult getEntry(ATCFileEntry *entry, size_t index);
 	ATCResult extractFileData(ostream *dst, istream *src, size_t length);
 
+#ifdef USE_CLI
+	ATCResult open(Stream ^src, array<System::Byte, 1> ^key);
+	ATCResult extractFileData(Stream ^dst, Stream ^src, size_t length);
+#endif
+
 public:
 	int32_t data_version() const;
 	char data_sub_version() const;
@@ -60,6 +71,8 @@ public:
 private:
 	void decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
 	bool parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8 = "");
+	bool initZlib();
+	bool parseHeaderEntries(stringstream *pms);
 
 private:
 	int32_t data_version_;

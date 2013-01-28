@@ -1,3 +1,9 @@
+v0.9.0
+======
+
+ - Fixed build failure on linux GCC
+ - Update README.md
+ 
 v0.8.9
 ======
 

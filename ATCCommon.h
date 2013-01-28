@@ -51,7 +51,7 @@ enum {
 
 };
 
-enum ATCResult{
+enum ATCResult {
 
 	ATC_OK,
 	ATC_FINISHED,
@@ -70,7 +70,7 @@ enum ATCResult{
 
 };
 
-struct ATCFileEntry{
+struct ATCFileEntry {
 
 	string  name_sjis;
 	string  name_utf8;
