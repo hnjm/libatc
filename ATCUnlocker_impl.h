@@ -28,10 +28,12 @@ freely, subject to the following restrictions:
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 #include <zlib.h>
 
 #include "Rijndael.h"
+#include "blowfish.h"
 
 #include "ATCCommon.h"
 #include "ATCUnlocker.h"
@@ -42,6 +44,8 @@ freely, subject to the following restrictions:
 	using namespace System::IO;
 	using namespace System::Text;
 #endif
+
+#define PASS_FOOTER "_AttacheCase-M.Hibara"
 
 class ATCUnlocker_impl
 {
@@ -69,7 +73,8 @@ public:
 	bool self_destruction() const;
 
 private:
-	void decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
+	void decryptBufferRijndael(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE]);
+	void decryptBufferBlowfish(char data_buffer[ATC_BUF_SIZE]);
 	bool parseFileEntry(ATCFileEntry *entry, const std::string& tsv_sjis, const std::string& tsv_utf8 = "");
 	bool initZlib();
 	bool parseHeaderEntries(stringstream *pms);
@@ -87,6 +92,8 @@ private:
 
 	CRijndael rijndael_;
 	char chain_buffer_[ATC_BUF_SIZE];
+
+	CBlowFish blowfish_;
 
 	z_stream z_;
 	int32_t z_flush_, z_status_;

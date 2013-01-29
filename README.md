@@ -5,7 +5,7 @@ libatc
 
 [AttacheCase](http://github.com/hibara/AttacheCase) Encryption/Decryption Library for C++ and C#/.NET
 
-* Decryption for *.atc and *.exe format (Format Version 2.7.x and 2.8.x only)
+* Decryption for *.atc and *.exe format
 * Encryption for *.atc format
 
 libatc doesn't provide any platform-dependent functions.
@@ -16,7 +16,7 @@ libatc doesn't provide any platform-dependent functions.
 
 ### Build
 
-#### Windows (Visual Studio 2010)
+#### Windows (C++ and C#)
 Open __libatc/msvc/libatc.sln__
 
 #### Mac OS X

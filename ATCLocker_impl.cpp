@@ -437,6 +437,21 @@ void ATCLocker_impl::set_create_time(const time_t create_time)
 
 #ifdef USE_CLI
 
+namespace {
+
+	void writeToStream(Stream ^dst, const char *src, size_t length)
+	{
+		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(length);
+		pin_ptr<System::Byte> buffer_native = &buffer[0];
+
+		memcpy(buffer_native, src, length);
+
+		dst->Write(buffer, 0, length);
+		buffer_native = nullptr;
+	}
+
+};
+
 ATCResult ATCLocker_impl::open(Stream ^dst, array<System::Byte, 1> ^key)
 {
 	array<System::Byte, 1>^ key_buffer = gcnew array<System::Byte, 1>(ATC_KEY_SIZE);
@@ -445,15 +460,7 @@ ATCResult ATCLocker_impl::open(Stream ^dst, array<System::Byte, 1> ^key)
 	string header;
 	generatePlainHeader(&header);
 
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(header.size());
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-		memcpy(buffer_native, header.data(), header.size());
-
-		dst->Write(buffer, 0, header.size());
-		buffer_native = nullptr;
-	}
+	writeToStream(dst, header.data(), header.size());
 
 	// キーをセット
 	{
@@ -481,60 +488,30 @@ ATCResult ATCLocker_impl::writeEncryptedHeader(Stream ^dst)
 	const int32_t block_length = (whole_header.str().size() + ATC_BUF_SIZE - 1) / ATC_BUF_SIZE;
 	const int32_t encrypt_header_size = block_length * ATC_BUF_SIZE;
 
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(sizeof(int32_t));
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-		memcpy(buffer_native, reinterpret_cast<const char*>(&encrypt_header_size), sizeof(int32_t));
-
-		dst->Write(buffer, 0, sizeof(int32_t));
-		buffer_native = nullptr;
-	}
+	writeToStream(dst, reinterpret_cast<const char*>(&encrypt_header_size), sizeof(encrypt_header_size));
 
 	//初期化ベクトル（IV）を生成
 	fillrand(chain_buffer_, ATC_BUF_SIZE);
+	writeToStream(dst, chain_buffer_, ATC_BUF_SIZE);
 
 	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
+		char buffer[ATC_BUF_SIZE];
 
-		memcpy(buffer_native, chain_buffer_, ATC_BUF_SIZE);
-
-		dst->Write(buffer, 0, ATC_BUF_SIZE);
-		buffer_native = nullptr;
-	}
-
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-		while (whole_header.read(reinterpret_cast<char*>(buffer_native), ATC_BUF_SIZE).gcount() != 0)
+		while (whole_header.read(reinterpret_cast<char*>(buffer), ATC_BUF_SIZE).gcount() != 0)
 		{
-			encryptBuffer(reinterpret_cast<char*>(buffer_native), chain_buffer_);
-
-			dst->Write(buffer, 0, ATC_BUF_SIZE);
+			encryptBuffer(reinterpret_cast<char*>(buffer), chain_buffer_);
+			writeToStream(dst, buffer, ATC_BUF_SIZE);
 
 			for (int i = 0; i < ATC_BUF_SIZE; i++)
 			{
-				buffer_native[i] = 0;
+				buffer[i] = 0;
 			}
 		}
-		
-		buffer_native = nullptr;
 	}
 
 	//初期化ベクトル（IV）を生成
 	fillrand(chain_buffer_, ATC_BUF_SIZE);
-
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-		memcpy(buffer_native, chain_buffer_, ATC_BUF_SIZE);
-
-		dst->Write(buffer, 0, ATC_BUF_SIZE);
-		buffer_native = nullptr;
-	}
+	writeToStream(dst, chain_buffer_, ATC_BUF_SIZE);
 
 	if (!initZlib())
 	{
@@ -597,16 +574,7 @@ ATCResult ATCLocker_impl::writeFileData(Stream ^dst, Stream ^src, size_t length)
         if (z_.avail_out == 0)
 		{
 			encryptBuffer(output_buffer_, chain_buffer_);
-
-			{
-				array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-				pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-				memcpy(buffer_native, output_buffer_, ATC_BUF_SIZE);
-
-				dst->Write(buffer, 0, ATC_BUF_SIZE);
-				buffer_native = nullptr;
-			}
+			writeToStream(dst, output_buffer_, ATC_BUF_SIZE);
 
 			z_.next_out = reinterpret_cast<Bytef*>(output_buffer_);
 			z_.avail_out = ATC_BUF_SIZE;
@@ -623,17 +591,9 @@ ATCResult ATCLocker_impl::writeFileData(Stream ^dst, Stream ^src, size_t length)
 			{
 				output_buffer_[i] = padding_num;
 			}
+
 			encryptBuffer(output_buffer_, chain_buffer_);
-
-			{
-				array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-				pin_ptr<System::Byte> buffer_native = &buffer[0];
-
-				memcpy(buffer_native, output_buffer_, ATC_BUF_SIZE);
-
-				dst->Write(buffer, 0, ATC_BUF_SIZE);
-				buffer_native = nullptr;
-			}
+			writeToStream(dst, output_buffer_, ATC_BUF_SIZE);
 
 		}
 

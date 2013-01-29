@@ -87,6 +87,7 @@
     <ClInclude Include="..\ATCLocker_impl.h" />
     <ClInclude Include="..\ATCUnlocker.h" />
     <ClInclude Include="..\ATCUnlocker_impl.h" />
+    <ClInclude Include="..\blowfish.h" />
     <ClInclude Include="..\isaac.h" />
     <ClInclude Include="..\Rijndael.h" />
     <ClInclude Include="..\standard.h" />
@@ -96,8 +97,12 @@
     <ClCompile Include="..\ATCLocker_impl.cpp" />
     <ClCompile Include="..\ATCUnlocker.cpp" />
     <ClCompile Include="..\ATCUnlocker_impl.cpp" />
+    <ClCompile Include="..\blowfish.cpp" />
     <ClCompile Include="..\isaac.c" />
     <ClCompile Include="..\Rijndael.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\blowfish.h2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

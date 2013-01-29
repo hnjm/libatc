@@ -98,7 +98,13 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	}
 	else if (data_version_ <= 103)
 	{
-		return ATC_ERR_UNSUPPORTED_VERSION;
+		const char *str_end = find(&key[0], &key[ATC_KEY_SIZE - 1], '\0');
+		string key_str = string(&key[0], str_end) + PASS_FOOTER;
+
+		blowfish_.Initialize(
+			const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(key_str.data())), key_str.size());
+
+		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info);
 	}
 	else
 	{
@@ -126,13 +132,13 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 			passwd_try_limit_ = ATC_DEFAULT_PASSWORD_TRY_LIMIT;
 			self_destruction_ = false;
 		}
+
+		// IVの読み込み
+		src->read(chain_buffer_, ATC_BUF_SIZE);
+
+		// キーをセット
+		rijndael_.MakeKey(key, CRijndael::sm_chain0, ATC_KEY_SIZE, ATC_BUF_SIZE);
 	}
-
-	// IVの読み込み
-	src->read(chain_buffer_, ATC_BUF_SIZE);
-
-	// キーをセット
-	rijndael_.MakeKey(key, CRijndael::sm_chain0, ATC_KEY_SIZE, ATC_BUF_SIZE);
 	
 	stringstream pms;
 	streamsize len = 0;
@@ -141,7 +147,12 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		char source_buffer[ATC_BUF_SIZE] = {0};
 		len += src->read(source_buffer, ATC_BUF_SIZE).gcount();
 
-		decryptBuffer(source_buffer, chain_buffer_);
+		if (data_version_ <= 103)
+		{
+			decryptBufferBlowfish(source_buffer);
+		} else {
+			decryptBufferRijndael(source_buffer, chain_buffer_);
+		}
 
 		// 最初のブロックで復号に成功したかどうかチェック
 		if (len == ATC_BUF_SIZE)
@@ -171,8 +182,11 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	// ファイル（データ本体）サイズを取得する
 	total_length_ = file_length - cursor - ATC_BUF_SIZE;
 
-	// IVの読み出し
-	src->read(chain_buffer_, ATC_BUF_SIZE);
+	if (data_version_ > 103)
+	{
+		// IVの読み出し
+		src->read(chain_buffer_, ATC_BUF_SIZE);
+	}
 
 	if (!initZlib())
 	{
@@ -214,7 +228,12 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 			const streamsize read_length = src->read(input_buffer_, ATC_BUF_SIZE).gcount();
 			total_read_length_ += read_length;
 
-			decryptBuffer(input_buffer_, chain_buffer_);
+			if (data_version_ <= 103)
+			{
+				decryptBufferBlowfish(input_buffer_);
+			} else {
+				decryptBufferRijndael(input_buffer_, chain_buffer_);
+			}
 
 			z_.avail_in = static_cast<uInt>(read_length);
 
@@ -252,6 +271,10 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 		if (z_status_ != Z_OK)
 		{
 			if (z_status_ == Z_BUF_ERROR)
+			{
+				z_.avail_out = 0;
+			} else 
+			if (data_version_ <= 103 && z_status_ == Z_DATA_ERROR)
 			{
 				z_.avail_out = 0;
 			} else {
@@ -293,7 +316,7 @@ ATCResult ATCUnlocker_impl::extractFileData(ostream *dst, istream *src, size_t l
 	return ATC_OK;
 }
 
-void ATCUnlocker_impl::decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
+void ATCUnlocker_impl::decryptBufferRijndael(char data_buffer[ATC_BUF_SIZE], char iv_buffer[ATC_BUF_SIZE])
 {
 	char temp_buffer[ATC_BUF_SIZE] = {0};
 
@@ -310,6 +333,15 @@ void ATCUnlocker_impl::decryptBuffer(char data_buffer[ATC_BUF_SIZE], char iv_buf
 	}
 
 	memcpy(iv_buffer, temp_buffer, ATC_BUF_SIZE);
+}
+
+void ATCUnlocker_impl::decryptBufferBlowfish(char data_buffer[ATC_BUF_SIZE])
+{
+	char temp_buffer[ATC_BUF_SIZE] = {0};
+	memcpy(temp_buffer, data_buffer, ATC_BUF_SIZE);
+
+	blowfish_.Decode(reinterpret_cast<unsigned char*>(temp_buffer),
+		reinterpret_cast<unsigned char*>(data_buffer), ATC_BUF_SIZE);
 }
 
 namespace {
@@ -361,21 +393,30 @@ bool ATCUnlocker_impl::parseFileEntry(ATCFileEntry *entry, const std::string& ts
 	}
 
 	number_strings.push_back(tsv_sjis.substr(tab_pos + 1));
-
-	if (number_strings.size() != 6)
-	{
-		return false;
-	}
-
+	
 	convertFromString(&entry->size,			number_strings[0], static_cast<int64_t>(-1));
 	convertFromString(&entry->attribute,	number_strings[1], static_cast<int32_t>(-1));
 
 	int32_t change_dt, change_tm;
 	int32_t create_dt, create_tm;
-	convertFromString(&change_dt, number_strings[2], static_cast<int32_t>(-1));
-	convertFromString(&change_tm, number_strings[3], static_cast<int32_t>(-1));
-	convertFromString(&create_dt, number_strings[4], static_cast<int32_t>(-1));
-	convertFromString(&create_tm, number_strings[5], static_cast<int32_t>(-1));
+
+	switch (number_strings.size())
+	{
+	case 6:
+		convertFromString(&change_dt, number_strings[2], static_cast<int32_t>(-1));
+		convertFromString(&change_tm, number_strings[3], static_cast<int32_t>(-1));
+		convertFromString(&create_dt, number_strings[4], static_cast<int32_t>(-1));
+		convertFromString(&create_tm, number_strings[5], static_cast<int32_t>(-1));
+		break;
+	case 3:
+		convertFromString(&change_dt, number_strings[2], static_cast<int32_t>(-1));
+		convertFromString(&change_tm, number_strings[2], static_cast<int32_t>(-1));
+		convertFromString(&create_dt, number_strings[2], static_cast<int32_t>(-1));
+		convertFromString(&create_tm, number_strings[2], static_cast<int32_t>(-1));
+		break;
+	default:
+		return false;
+	}
 
 	// TTimeStamp から UNIX時間へ変換
 	entry->change_unix_time = ttime_to_unix(change_dt, change_tm);
@@ -502,6 +543,21 @@ bool ATCUnlocker_impl::self_destruction() const
 
 #ifdef USE_CLI
 
+namespace {
+
+void readToBuffer(char* dst, Stream ^src, size_t length)
+{
+	array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(length);
+	src->Read(buffer, 0, buffer->Length);
+
+	pin_ptr<System::Byte> buffer_native = &buffer[0];
+	memcpy(dst, buffer_native, buffer->Length);
+
+	buffer = nullptr;
+}
+
+};
+
 ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 {
 	array<System::Byte, 1>^ key_buffer = gcnew array<System::Byte, 1>(ATC_KEY_SIZE);
@@ -530,15 +586,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 
 		src->Seek(total - sizeof(int64_t), SeekOrigin::Begin);
 
-		{
-			array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(sizeof(total_length_));
-			src->Read(buffer, 0, buffer->Length);
-
-			pin_ptr<System::Byte> buffer_native = &buffer[0];
-			total_length_ = *reinterpret_cast<int64_t*>(buffer_native);
-
-			buffer = nullptr;
-		}
+		readToBuffer(reinterpret_cast<char*>(&total_length_), src, sizeof(total_length_));
         
 		src->Seek(-(total_length_ + sizeof(int64_t)), SeekOrigin::End);
 
@@ -556,15 +604,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 	token_native = nullptr;
 
 	// データバージョンを読み込み
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(sizeof(data_version_));
-		src->Read(buffer, 0, buffer->Length);
-
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-		data_version_ = *reinterpret_cast<int32_t*>(buffer_native);
-
-		buffer_native = nullptr;
-	}
+	readToBuffer(reinterpret_cast<char*>(&data_version_), src, sizeof(data_version_));
 
 	if (data_version_ > ATC_DATA_FILE_VERSION && data_version_ < 200)
 	{
@@ -572,32 +612,26 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 	}
 	else if (data_version_ <= 103)
 	{
-		return ATC_ERR_UNSUPPORTED_VERSION;
+		pin_ptr<System::Byte> key_native = &key_buffer[0];
+		const char *str_end = find(reinterpret_cast<char*>(&key_native[0]),
+			reinterpret_cast<char*>(&key_native[ATC_KEY_SIZE - 1]), '\0');
+
+		string key_str = string(reinterpret_cast<char*>(&key_native[0]), str_end) + PASS_FOOTER;
+		key_native = nullptr;
+
+		blowfish_.Initialize(
+			const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(key_str.data())), key_str.size());
+		
+		pin_ptr<System::Byte> plain_header_info_native = &plain_header_info[0];
+		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info_native);
+		plain_header_info_native = nullptr;
 	}
 	else
 	{
 		// 104 ～
 		// Rijndaelで暗号化されている
-
-		{
-			array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(sizeof(algorism_type_));
-			src->Read(buffer, 0, buffer->Length);
-
-			pin_ptr<System::Byte> buffer_native = &buffer[0];
-			algorism_type_ = *reinterpret_cast<int32_t*>(buffer_native);
-
-			buffer_native = nullptr;
-		}
-
-		{
-			array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(sizeof(encrypted_header_size));
-			src->Read(buffer, 0, buffer->Length);
-
-			pin_ptr<System::Byte> buffer_native = &buffer[0];
-			encrypted_header_size = *reinterpret_cast<int32_t*>(buffer_native);
-
-			buffer_native = nullptr;
-		}
+		readToBuffer(reinterpret_cast<char*>(&algorism_type_), src, sizeof(algorism_type_));
+		readToBuffer(reinterpret_cast<char*>(&encrypted_header_size), src, sizeof(encrypted_header_size));
 
 		// データサブバージョンチェック（ver.2.70～）
 		if (plain_header_info[0] >= 6)
@@ -617,26 +651,18 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 			passwd_try_limit_ = ATC_DEFAULT_PASSWORD_TRY_LIMIT;
 			self_destruction_ = false;
 		}
-	}
 
-	// IVの読み込み
-	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-		src->Read(buffer, 0, buffer->Length);
+		// IVの読み込み
+		readToBuffer(reinterpret_cast<char*>(&chain_buffer_), src, ATC_BUF_SIZE);
 
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-		memcpy(chain_buffer_, buffer_native, ATC_BUF_SIZE);
+		// キーをセット
+		{
+			pin_ptr<System::Byte> buffer_native = &key_buffer[0];
+			rijndael_.MakeKey(reinterpret_cast<const char*>(buffer_native),
+				CRijndael::sm_chain0, ATC_KEY_SIZE, ATC_BUF_SIZE);
 
-		buffer_native = nullptr;
-	}
-
-	// キーをセット
-	{
-		pin_ptr<System::Byte> buffer_native = &key_buffer[0];
-		rijndael_.MakeKey(reinterpret_cast<const char*>(buffer_native),
-			CRijndael::sm_chain0, ATC_KEY_SIZE, ATC_BUF_SIZE);
-
-		buffer_native = nullptr;
+			buffer_native = nullptr;
+		}
 	}
 
 	stringstream pms;
@@ -647,7 +673,13 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 		len += src->Read(buffer, 0, buffer->Length);
 
 		pin_ptr<System::Byte> source_buffer = &buffer[0];
-		decryptBuffer(reinterpret_cast<char*>(source_buffer), chain_buffer_);
+		
+		if (data_version_ <= 103)
+		{
+			decryptBufferBlowfish(reinterpret_cast<char*>(source_buffer));
+		} else {
+			decryptBufferRijndael(reinterpret_cast<char*>(source_buffer), chain_buffer_);
+		}
 
 		// 最初のブロックで復号に成功したかどうかチェック
 		if (len == ATC_BUF_SIZE)
@@ -678,15 +710,10 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 	// ファイル（データ本体）サイズを取得する
 	total_length_ = file_length - cursor - ATC_BUF_SIZE;
 
-	// IVの読み出し
+	if (data_version_ > 103)
 	{
-		array<System::Byte, 1>^ buffer = gcnew array<System::Byte, 1>(ATC_BUF_SIZE);
-		src->Read(buffer, 0, buffer->Length);
-
-		pin_ptr<System::Byte> buffer_native = &buffer[0];
-		memcpy(chain_buffer_, buffer_native, ATC_BUF_SIZE);
-
-		buffer_native = nullptr;
+		// IVの読み出し
+		readToBuffer(reinterpret_cast<char*>(&chain_buffer_), src, ATC_BUF_SIZE);
 	}
 
 	if (!initZlib())
@@ -717,7 +744,13 @@ ATCResult ATCUnlocker_impl::extractFileData(Stream ^dst, Stream ^src, size_t len
 
 			total_read_length_ += read_length;
 
-			decryptBuffer(input_buffer_, chain_buffer_);
+
+			if (data_version_ <= 103)
+			{
+				decryptBufferBlowfish(input_buffer_);
+			} else {
+				decryptBufferRijndael(input_buffer_, chain_buffer_);
+			}
 
 			z_.avail_in = static_cast<uInt>(read_length);
 
@@ -755,6 +788,10 @@ ATCResult ATCUnlocker_impl::extractFileData(Stream ^dst, Stream ^src, size_t len
 		if (z_status_ != Z_OK)
 		{
 			if (z_status_ == Z_BUF_ERROR)
+			{
+				z_.avail_out = 0;
+			} else 
+			if (data_version_ <= 103 && z_status_ == Z_DATA_ERROR)
 			{
 				z_.avail_out = 0;
 			} else {

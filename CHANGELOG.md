@@ -1,3 +1,8 @@
+v0.9.2
+======
+
+ - Added support for format version 1.x
+ 
 v0.9.0
 ======
 

@@ -87,6 +87,7 @@
     <ClInclude Include="..\..\ATCLocker_impl.h" />
     <ClInclude Include="..\..\ATCUnlocker.h" />
     <ClInclude Include="..\..\ATCUnlocker_impl.h" />
+    <ClInclude Include="..\..\blowfish.h" />
     <ClInclude Include="..\..\isaac.h" />
     <ClInclude Include="..\..\Rijndael.h" />
     <ClInclude Include="..\..\standard.h" />
@@ -97,6 +98,7 @@
     <ClCompile Include="..\..\ATCLocker_impl.cpp" />
     <ClCompile Include="..\..\ATCUnlocker.cpp" />
     <ClCompile Include="..\..\ATCUnlocker_impl.cpp" />
+    <ClCompile Include="..\..\blowfish.cpp" />
     <ClCompile Include="..\..\isaac.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
@@ -104,6 +106,9 @@
     <ClCompile Include="..\..\Rijndael.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="libatc_cli.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\blowfish.h2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

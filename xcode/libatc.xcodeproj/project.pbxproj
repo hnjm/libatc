@@ -20,6 +20,8 @@
 		E400747116ABED8900040B4A /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E400747016ABED8900040B4A /* test.cpp */; };
 		E400747416ABEE1800040B4A /* libatc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E400740316ABEA0100040B4A /* libatc.a */; };
 		E400747716ABEE9400040B4A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E400747616ABEE9400040B4A /* libz.dylib */; };
+		E418E16B16B7D59800A118E2 /* blowfish.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E418E16816B7D59800A118E2 /* blowfish.cpp */; };
+		E418E16C16B7D59800A118E2 /* blowfish.h in Headers */ = {isa = PBXBuildFile; fileRef = E418E16916B7D59800A118E2 /* blowfish.h */; };
 		E4C9176C16AD9773007E9EC5 /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = E4C9176B16AD9773007E9EC5 /* crc.c */; };
 		E4D5803A16AEC0BA007F8AB4 /* ATCLocker_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803616AEC0BA007F8AB4 /* ATCLocker_impl.cpp */; };
 		E4D5803B16AEC0BA007F8AB4 /* ATCLocker_impl.h in Sources */ = {isa = PBXBuildFile; fileRef = E4D5803716AEC0BA007F8AB4 /* ATCLocker_impl.h */; };
@@ -64,6 +66,9 @@
 		E400746616ABED6000040B4A /* libatc_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = libatc_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		E400747016ABED8900040B4A /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = ../test/test.cpp; sourceTree = "<group>"; };
 		E400747616ABEE9400040B4A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		E418E16816B7D59800A118E2 /* blowfish.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = blowfish.cpp; path = ../blowfish.cpp; sourceTree = "<group>"; };
+		E418E16916B7D59800A118E2 /* blowfish.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = blowfish.h; path = ../blowfish.h; sourceTree = "<group>"; };
+		E418E16A16B7D59800A118E2 /* blowfish.h2 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blowfish.h2; path = ../blowfish.h2; sourceTree = "<group>"; };
 		E4C9176B16AD9773007E9EC5 /* crc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = crc.c; path = ../test/crc.c; sourceTree = "<group>"; };
 		E4D5803616AEC0BA007F8AB4 /* ATCLocker_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ATCLocker_impl.cpp; path = ../ATCLocker_impl.cpp; sourceTree = "<group>"; };
 		E4D5803716AEC0BA007F8AB4 /* ATCLocker_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ATCLocker_impl.h; path = ../ATCLocker_impl.h; sourceTree = "<group>"; };
@@ -110,6 +115,9 @@
 				E400741116ABEA3300040B4A /* Rijndael.cpp */,
 				E400741216ABEA3300040B4A /* Rijndael.h */,
 				E400741316ABEA3300040B4A /* standard.h */,
+				E418E16816B7D59800A118E2 /* blowfish.cpp */,
+				E418E16916B7D59800A118E2 /* blowfish.h */,
+				E418E16A16B7D59800A118E2 /* blowfish.h2 */,
 				E400740416ABEA0100040B4A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -145,6 +153,7 @@
 				E400741A16ABEA3300040B4A /* isaac.h in Headers */,
 				E400741C16ABEA3300040B4A /* Rijndael.h in Headers */,
 				E400741D16ABEA3300040B4A /* standard.h in Headers */,
+				E418E16C16B7D59800A118E2 /* blowfish.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +235,7 @@
 				E400741716ABEA3300040B4A /* ATCUnlocker.cpp in Sources */,
 				E400741916ABEA3300040B4A /* isaac.c in Sources */,
 				E400741B16ABEA3300040B4A /* Rijndael.cpp in Sources */,
+				E418E16B16B7D59800A118E2 /* blowfish.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Security.Cryptography;
 
 namespace libatc_cli_test
 {
@@ -112,7 +113,7 @@ namespace libatc_cli_test
 
                 {
                     AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
-                    Assert.AreEqual<AttacheCase.Result>(unlocker.GetEntry(entry, 1), AttacheCase.Result.OK);
+                    Assert.AreEqual(unlocker.GetEntry(entry, 1), AttacheCase.Result.OK);
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -126,7 +127,7 @@ namespace libatc_cli_test
 
                 {
                     AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
-                    Assert.AreEqual<AttacheCase.Result>(unlocker.GetEntry(entry, 2), AttacheCase.Result.OK);
+                    Assert.AreEqual(unlocker.GetEntry(entry, 2), AttacheCase.Result.OK);
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -141,5 +142,86 @@ namespace libatc_cli_test
             }
 
         }
+
+        [TestMethod]
+        public void Decryption_For_v1_46()
+        {
+            Decryption_Test("cosmos_v1.46.atc.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_v1_46_Executable()
+        {
+            Decryption_Test("cosmos_v1.46.exe.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_v2_7_5_0()
+        {
+            Decryption_Test("cosmos_v2.7.5.0.atc.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_v2_7_5_0_Executable()
+        {
+            Decryption_Test("cosmos_v2.7.5.0.exe.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_v2_8_2_5()
+        {
+            Decryption_Test("cosmos_v2.8.2.5.atc.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_v2_8_2_5_Executable()
+        {
+            Decryption_Test("cosmos_v2.8.2.5.exe.tester");
+        }
+
+        private static byte[] test_md5 = new byte[0];
+
+        private void Decryption_Test(String filename)
+        {
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+
+	        byte[] key = Encoding.UTF8.GetBytes("cosmos");
+
+	        
+	        if (test_md5.Length == 0)
+	        {
+                using (FileStream infs = new FileStream("../../../../test/cosmos.jpg", FileMode.Open))
+                {
+                    byte[] buffer = new byte[infs.Length];
+                    infs.Read(buffer, 0, buffer.Length);
+                    md5.ComputeHash(buffer);
+                    test_md5 = md5.Hash;
+                    md5.Initialize();
+                }
+	        }
+
+            using (FileStream infs = new FileStream("../../../../test/" + filename, FileMode.Open))
+            {
+                AttacheCase.Unlocker unlocker = new AttacheCase.Unlocker();
+                Assert.AreEqual(unlocker.Open(infs, key), AttacheCase.Result.OK);
+                Assert.AreEqual<uint>(unlocker.EntryLength, 1);
+
+                AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
+                Assert.AreEqual(unlocker.GetEntry(entry, 0), AttacheCase.Result.OK);
+
+                MemoryStream extracted = new MemoryStream();
+                Assert.AreEqual(unlocker.ExtractFileData(extracted, infs, (uint)entry.Size), AttacheCase.Result.OK);
+
+                byte[] buffer = new byte[entry.Size];
+                extracted.Position = 0;
+                extracted.Read(buffer, 0, buffer.Length);
+
+                md5.ComputeHash(buffer);
+                Assert.IsTrue(test_md5.SequenceEqual(md5.Hash));
+            }
+
+        }
+
+
     }
 }
