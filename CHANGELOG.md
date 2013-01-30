@@ -1,3 +1,8 @@
+v0.9.3
+======
+
+ - Modified C# interface
+ 
 v0.9.2
 ======
 

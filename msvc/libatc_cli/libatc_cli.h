@@ -82,21 +82,23 @@ public:
 
 public:
 	Result Open(Stream ^src, array<System::Byte, 1> ^key);
+	Result Open(Stream ^src, String ^key);
 	Result Close();
 
-	Result GetEntry(FileEntry ^entry, size_t index);
-	Result ExtractFileData(Stream ^dst, Stream ^src, size_t length);
+	Result ExtractFileData(Stream ^dst, Stream ^src, int64_t length);
 
 public:
-	property size_t EntryLength { size_t get(); }
 	property int32_t DataVersion { int32_t get(); }
 	property char DataSubVersion { char get(); }
 	property int32_t AlgorismType { int32_t get(); }
 	property char PasswdTryLimit { char get(); }
 	property bool SelfDestruction { bool get(); }
 
+	property array<FileEntry^, 1>^ Entries { array<FileEntry^, 1>^ get(); }
+
 private:
 	ATCUnlocker_impl *impl_;
+	array<FileEntry^, 1>^ entries_;
 
 };
 
@@ -107,11 +109,12 @@ public:
 	~Locker();
 
 	Result Open(Stream ^dst, array<System::Byte, 1> ^key);
+	Result Open(Stream ^dst, String ^key);
 	Result Close();
 
 	Result AddFileEntry(FileEntry ^entry);
 	Result WriteEncryptedHeader(Stream ^dst);
-	Result WriteFileData(Stream ^dst, Stream ^src, size_t length);
+	Result WriteFileData(Stream ^dst, Stream ^src, int64_t length);
 
 public:
 	property char PasswdTryLimit

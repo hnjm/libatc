@@ -70,6 +70,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;USE_CLI;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -92,6 +93,7 @@
     <ClInclude Include="..\..\Rijndael.h" />
     <ClInclude Include="..\..\standard.h" />
     <ClInclude Include="libatc_cli.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ATCLocker.cpp" />
@@ -109,6 +111,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\blowfish.h2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="libatc_cli.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

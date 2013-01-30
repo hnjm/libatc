@@ -40,7 +40,7 @@ namespace libatc_cli_test
         public void SelfEncryptionAndDecryption()
         {
 
-            byte[] key = Encoding.UTF8.GetBytes("This is a pen.");
+            string key = "This is a pen.";
             String atc_filename = "test_.atc";
 
             String test_data_str = "The quick brown fox jumps over the lazy dog";
@@ -109,11 +109,10 @@ namespace libatc_cli_test
                 Assert.AreEqual(unlocker.PasswdTryLimit, 5);
                 Assert.IsTrue(unlocker.SelfDestruction);
 
-                Assert.AreEqual<uint>(unlocker.EntryLength, 3);
+                Assert.AreEqual(unlocker.Entries.Length, 3);
 
                 {
-                    AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
-                    Assert.AreEqual(unlocker.GetEntry(entry, 1), AttacheCase.Result.OK);
+                    AttacheCase.FileEntry entry = unlocker.Entries[1];
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -126,8 +125,7 @@ namespace libatc_cli_test
                 }
 
                 {
-                    AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
-                    Assert.AreEqual(unlocker.GetEntry(entry, 2), AttacheCase.Result.OK);
+                    AttacheCase.FileEntry entry = unlocker.Entries[2];
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -185,9 +183,8 @@ namespace libatc_cli_test
         {
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 
-	        byte[] key = Encoding.UTF8.GetBytes("cosmos");
+	        string key = "cosmos";
 
-	        
 	        if (test_md5.Length == 0)
 	        {
                 using (FileStream infs = new FileStream("../../../../test/cosmos.jpg", FileMode.Open))
@@ -204,10 +201,9 @@ namespace libatc_cli_test
             {
                 AttacheCase.Unlocker unlocker = new AttacheCase.Unlocker();
                 Assert.AreEqual(unlocker.Open(infs, key), AttacheCase.Result.OK);
-                Assert.AreEqual<uint>(unlocker.EntryLength, 1);
+                Assert.AreEqual(unlocker.Entries.Length, 1);
 
-                AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
-                Assert.AreEqual(unlocker.GetEntry(entry, 0), AttacheCase.Result.OK);
+                AttacheCase.FileEntry entry = unlocker.Entries[0];
 
                 MemoryStream extracted = new MemoryStream();
                 Assert.AreEqual(unlocker.ExtractFileData(extracted, infs, (uint)entry.Size), AttacheCase.Result.OK);

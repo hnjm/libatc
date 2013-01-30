@@ -42,7 +42,7 @@ namespace {
 
 	DateTime^ UNIXToDateTime(time_t unix_time)
 	{
-		return (gcnew DateTime(1970,1,1,0,0,0,0))->AddSeconds(unix_time).ToLocalTime();
+		return (gcnew DateTime(1970,1,1,0,0,0,0))->AddSeconds(static_cast<double>(unix_time)).ToLocalTime();
 	}
 }
 
@@ -70,34 +70,17 @@ Result Unlocker::Open(Stream ^src, array<System::Byte, 1> ^key)
 	return static_cast<Result>(impl_->open(src, key));
 }
 
+Result Unlocker::Open(Stream ^src, String ^key)
+{
+	return Unlocker::Open(src, Encoding::UTF8->GetBytes(key));
+}
+
 Result Unlocker::Close()
 {
 	return static_cast<Result>(impl_->close());
 }
 
-size_t Unlocker::EntryLength::get()
-{
-	return impl_->getEntryLength();
-}
-
-Result Unlocker::GetEntry(FileEntry ^entry, size_t index)
-{
-	ATCFileEntry entry_native;
-	Result result = static_cast<Result>(impl_->getEntry(&entry_native, index));
-
-	entry->NameSJIS = gcnew String(entry_native.name_sjis.c_str());
-	entry->NameUTF8 = gcnew String(entry_native.name_utf8.c_str());
-
-	entry->Size = entry_native.size;
-	entry->Attribute = entry_native.attribute;
-
-	entry->ChangeDateTime = *UNIXToDateTime(entry_native.change_unix_time);
-	entry->CreateDateTime = *UNIXToDateTime(entry_native.create_unix_time);
-	
-	return result;
-}
-
-Result Unlocker::ExtractFileData(Stream ^dst, Stream ^src, size_t length)
+Result Unlocker::ExtractFileData(Stream ^dst, Stream ^src, int64_t length)
 {
 	return static_cast<Result>(impl_->extractFileData(dst, src, length));
 }
@@ -127,6 +110,35 @@ bool Unlocker::SelfDestruction::get()
 	return impl_->self_destruction();
 }
 
+array<FileEntry^, 1>^ Unlocker::Entries::get()
+{
+	if (!entries_)
+	{
+		size_t length = impl_->getEntryLength();
+		entries_ = gcnew array<FileEntry^, 1>(length);
+
+		for (size_t i = 0; i < length; ++i)
+		{
+			FileEntry ^entry = gcnew FileEntry();
+			ATCFileEntry entry_native;
+
+			Result result = static_cast<Result>(impl_->getEntry(&entry_native, i));
+
+			entry->NameSJIS = gcnew String(entry_native.name_sjis.c_str());
+			entry->NameUTF8 = gcnew String(entry_native.name_utf8.c_str());
+
+			entry->Size = entry_native.size;
+			entry->Attribute = entry_native.attribute;
+
+			entry->ChangeDateTime = *UNIXToDateTime(entry_native.change_unix_time);
+			entry->CreateDateTime = *UNIXToDateTime(entry_native.create_unix_time);
+
+			entries_[i] = entry;
+		}
+	}
+
+	return entries_;
+}
 
 
 Locker::Locker() :
@@ -149,6 +161,11 @@ Locker::~Locker()
 Result Locker::Open(Stream ^dst, array<System::Byte, 1> ^key)
 {
 	return static_cast<Result>(impl_->open(dst, key));
+}
+
+Result Locker::Open(Stream ^src, String ^key)
+{
+	return Locker::Open(src, Encoding::UTF8->GetBytes(key));
 }
 
 Result Locker::Close()
@@ -187,7 +204,7 @@ Result Locker::WriteEncryptedHeader(Stream ^dst)
 	return static_cast<Result>(impl_->writeEncryptedHeader(dst));
 }
 
-Result Locker::WriteFileData(Stream ^dst, Stream ^src, size_t length)
+Result Locker::WriteFileData(Stream ^dst, Stream ^src, int64_t length)
 {
 	return static_cast<Result>(impl_->writeFileData(dst, src, length));
 }
