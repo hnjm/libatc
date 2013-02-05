@@ -85,6 +85,8 @@ bool Decryption_For_v2_7_5_0();
 bool Decryption_For_v2_7_5_0_Executable();
 bool Decryption_For_v2_8_2_5();
 bool Decryption_For_v2_8_2_5_Executable();
+bool Decryption_For_v2_8_2_7_Destructed();
+bool Decryption_For_Unencrypted_File();
 
 int main()
 {
@@ -105,6 +107,8 @@ int main()
 	TEST(Decryption_For_v2_7_5_0_Executable);
 	TEST(Decryption_For_v2_8_2_5);
 	TEST(Decryption_For_v2_8_2_5_Executable);
+	TEST(Decryption_For_v2_8_2_7_Destructed);
+	TEST(Decryption_For_Unencrypted_File);
 
 	cout << "---------------------" << endl;
 	cout << "Result: " << succeeded << "/" << total << endl;
@@ -266,6 +270,32 @@ bool Decryption_Test(const char *filename)
 	return true;
 }
 
+bool Destructed_File_Test(const char *filename)
+{
+    char key[ATC_KEY_SIZE] = "cosmos";
+
+	ifstream ifs(test_path + filename, ifstream::binary);
+	ASSERT(ifs);
+
+	ATCUnlocker unlocker;
+	ASSERT(unlocker.open(&ifs, key) == ATC_ERR_DESTRUCTED_FILE);
+
+	return true;
+}
+
+bool Unencrypted_File_Test(const char *filename)
+{
+    char key[ATC_KEY_SIZE] = "cosmos";
+
+	ifstream ifs(test_path + filename, ifstream::binary);
+	ASSERT(ifs);
+
+	ATCUnlocker unlocker;
+	ASSERT(unlocker.open(&ifs, key) == ATC_ERR_UNENCRYPTED_FILE);
+
+	return true;
+}
+
 bool Decryption_For_v1_46()
 {
 	return Decryption_Test("cosmos_v1.46.atc.tester");
@@ -294,6 +324,16 @@ bool Decryption_For_v2_8_2_5()
 bool Decryption_For_v2_8_2_5_Executable()
 {
 	return Decryption_Test("cosmos_v2.8.2.5.exe.tester");
+}
+
+bool Decryption_For_v2_8_2_7_Destructed()
+{
+	return Destructed_File_Test("cosmos_v2.8.2.7_destructed.atc.tester");
+}
+
+bool Decryption_For_Unencrypted_File()
+{
+	return Unencrypted_File_Test("cosmos.jpg");
 }
 
 #undef ASSERT

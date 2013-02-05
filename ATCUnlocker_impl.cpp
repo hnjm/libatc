@@ -58,6 +58,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 
 	char token[16];
 	static const char token_string[] = "_AttacheCaseData";
+	static const char broken_token_string[] = "_Atc_Broken_Data";
 
 	char plain_header_info[4] = {0, 0, 0, 0};
 	int32_t encrypted_header_size = 0;
@@ -66,27 +67,40 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	src->read(plain_header_info, sizeof(plain_header_info));
 	src->read(token, sizeof(token));
 
-	// トークンを検証
 	if (memcmp(token, token_string, sizeof(token)) != 0)
 	{
-		// 自己実行形式ファイルかどうかチェック
-
-		src->seekg(0, ios::end);
-		int64_t total = src->tellg();
-
-		src->seekg(total - sizeof(int64_t), ios::beg);
-		src->read(reinterpret_cast<char*>(&total_length_), sizeof(total_length_));
-        
-		src->clear();
-		src->seekg(static_cast<streamoff>(-(total_length_ + sizeof(int64_t))), ios::end);
-
-		src->read(plain_header_info, sizeof(plain_header_info));
-		src->read(token, sizeof(token));
-
-		// トークンを再チェック
-		if (memcmp(token, token_string, sizeof(token)) != 0)
+		if (memcmp(token, broken_token_string, sizeof(token)) == 0)
 		{
-			return ATC_ERR_BROKEN_HEADER;
+			return ATC_ERR_DESTRUCTED_FILE;
+		}
+		else
+		{
+			// 自己実行形式ファイルかどうかチェック
+
+			src->seekg(0, ios::end);
+			int64_t total = src->tellg();
+
+			src->seekg(total - sizeof(int64_t), ios::beg);
+			src->read(reinterpret_cast<char*>(&total_length_), sizeof(total_length_));
+
+			int64_t header_pos = -(total_length_ + sizeof(int64_t));
+
+			if (total + header_pos < 0)
+			{
+				return ATC_ERR_UNENCRYPTED_FILE;
+			}
+        
+			src->clear();
+			src->seekg(static_cast<streamoff>(header_pos), ios::end);
+
+			src->read(plain_header_info, sizeof(plain_header_info));
+			src->read(token, sizeof(token));
+
+			// トークンを再チェック
+			if (memcmp(token, token_string, sizeof(token)) != 0)
+			{
+				return ATC_ERR_UNENCRYPTED_FILE;
+			}
 		}
 	}
 
@@ -565,6 +579,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 
 	array<System::Byte, 1>^ token = gcnew array<System::Byte, 1>(32);
 	static const char token_string[] = "_AttacheCaseData";
+	static const char broken_token_string[] = "_Atc_Broken_Data";
 
 	array<System::Byte, 1>^ plain_header_info = gcnew array<System::Byte, 1>(4);
 	int32_t encrypted_header_size = 0;
@@ -576,29 +591,47 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 	// トークンのバイト列を固定
 	pin_ptr<System::Byte> token_native = &token[0];
 
-	// トークンを検証
 	if (memcmp(token_native, token_string, 16) != 0)
 	{
-		// 自己実行形式ファイルかどうかチェック
-
-		src->Seek(0, SeekOrigin::End);
-		int64_t total = src->Position;
-
-		src->Seek(total - sizeof(int64_t), SeekOrigin::Begin);
-
-		readToBuffer(reinterpret_cast<char*>(&total_length_), src, sizeof(total_length_));
-        
-		src->Seek(-(total_length_ + sizeof(int64_t)), SeekOrigin::End);
-
-		src->Read(plain_header_info, 0, plain_header_info->Length);
-		src->Read(token, 0, 16);
-
-		// トークンを再チェック
-		if (memcmp(token_native, token_string, 16) != 0)
+		if (memcmp(token_native, broken_token_string, 16) == 0)
 		{
-			return ATC_ERR_BROKEN_HEADER;
+			return ATC_ERR_DESTRUCTED_FILE;
+		}
+		else
+		{
+			// 自己実行形式ファイルかどうかチェック
+
+			src->Seek(0, SeekOrigin::End);
+			int64_t total = src->Position;
+
+			src->Seek(total - sizeof(int64_t), SeekOrigin::Begin);
+
+			readToBuffer(reinterpret_cast<char*>(&total_length_), src, sizeof(total_length_));
+
+			int64_t header_pos = -(total_length_ + sizeof(int64_t));
+
+			if (total + header_pos < 0)
+			{
+				return ATC_ERR_UNENCRYPTED_FILE;
+			}
+        
+			src->Seek(total - sizeof(int64_t), SeekOrigin::Begin);
+
+			readToBuffer(reinterpret_cast<char*>(&total_length_), src, sizeof(total_length_));
+        
+			src->Seek(-(total_length_ + sizeof(int64_t)), SeekOrigin::End);
+
+			src->Read(plain_header_info, 0, plain_header_info->Length);
+			src->Read(token, 0, 16);
+
+			// トークンを再チェック
+			if (memcmp(token_native, token_string, 16) != 0)
+			{
+				return ATC_ERR_UNENCRYPTED_FILE;
+			}
 		}
 	}
+
 
 	// トークンのバイト列を解放
 	token_native = nullptr;

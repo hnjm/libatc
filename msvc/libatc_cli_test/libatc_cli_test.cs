@@ -53,7 +53,7 @@ namespace libatc_cli_test
 
             using (FileStream outfs = new FileStream(atc_filename, FileMode.Create))
             {
-                AttacheCase.Locker locker = new AttacheCase.Locker();
+                var locker = new AttacheCase.Locker();
 
                 locker.PasswdTryLimit = 5;
                 locker.SelfDestruction = true;
@@ -61,7 +61,7 @@ namespace libatc_cli_test
                 Assert.AreEqual(locker.Open(outfs, key), AttacheCase.Result.OK);
 
                 {
-                    AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
+                    var entry = new AttacheCase.FileEntry();
                     entry.Attribute = 16;
                     entry.Size = -1;
                     entry.NameSJIS = "out\\";
@@ -72,7 +72,7 @@ namespace libatc_cli_test
                 }
 
                 {
-                    AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
+                    var entry = new AttacheCase.FileEntry();
                     entry.Attribute = 0;
                     entry.Size = test_data.Length;
                     entry.NameSJIS = "out\\test.txt";
@@ -83,7 +83,7 @@ namespace libatc_cli_test
                 }
 
                 {
-                    AttacheCase.FileEntry entry = new AttacheCase.FileEntry();
+                    var entry = new AttacheCase.FileEntry();
                     entry.Attribute = 0;
                     entry.Size = test_data2.Length;
                     entry.NameSJIS = "out\\test2.txt";
@@ -103,7 +103,7 @@ namespace libatc_cli_test
 
             using (FileStream infs = new FileStream(atc_filename, FileMode.Open))
             {
-                AttacheCase.Unlocker unlocker = new AttacheCase.Unlocker();
+                var unlocker = new AttacheCase.Unlocker();
 
                 Assert.AreEqual(unlocker.Open(infs, key), AttacheCase.Result.OK);
                 Assert.AreEqual(unlocker.PasswdTryLimit, 5);
@@ -112,7 +112,7 @@ namespace libatc_cli_test
                 Assert.AreEqual(unlocker.Entries.Length, 3);
 
                 {
-                    AttacheCase.FileEntry entry = unlocker.Entries[1];
+                    var entry = unlocker.Entries[1];
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -125,7 +125,7 @@ namespace libatc_cli_test
                 }
 
                 {
-                    AttacheCase.FileEntry entry = unlocker.Entries[2];
+                    var entry = unlocker.Entries[2];
 
                     Assert.AreEqual(entry.ChangeDateTime, time_stamp);
                     Assert.AreEqual(entry.CreateDateTime, time_stamp);
@@ -177,6 +177,18 @@ namespace libatc_cli_test
             Decryption_Test("cosmos_v2.8.2.5.exe.tester");
         }
 
+        [TestMethod]
+        public void Decryption_For_v2_8_2_7_Broken()
+        {
+            Destructed_File_Test("cosmos_v2.8.2.7_destructed.atc.tester");
+        }
+
+        [TestMethod]
+        public void Decryption_For_Unencrypted_File()
+        {
+            Unencrypted_File_Test("cosmos.jpg");
+        }
+
         private static byte[] test_md5 = new byte[0];
 
         private void Decryption_Test(String filename)
@@ -218,6 +230,29 @@ namespace libatc_cli_test
 
         }
 
+        private void Destructed_File_Test(String filename)
+        {
+            string key = "cosmos";
+
+            using (FileStream infs = new FileStream("../../../../test/" + filename, FileMode.Open))
+            {
+                AttacheCase.Unlocker unlocker = new AttacheCase.Unlocker();
+                Assert.AreEqual(unlocker.Open(infs, key), AttacheCase.Result.ERR_DESTRUCTED_FILE);
+            }
+
+        }
+
+        private void Unencrypted_File_Test(String filename)
+        {
+            string key = "cosmos";
+
+            using (FileStream infs = new FileStream("../../../../test/" + filename, FileMode.Open))
+            {
+                AttacheCase.Unlocker unlocker = new AttacheCase.Unlocker();
+                Assert.AreEqual(unlocker.Open(infs, key), AttacheCase.Result.ERR_UNENCRYPTED_FILE);
+            }
+
+        }
 
     }
 }

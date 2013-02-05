@@ -1,3 +1,8 @@
+v0.9.4
+======
+
+ - Added error codes and tests for undecryptable files
+ 
 v0.9.3
 ======
 
