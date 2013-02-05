@@ -39,7 +39,7 @@ public:
 	ATCUnlocker();
 	~ATCUnlocker();
 
-	ATCResult open(istream *src, const char key[ATC_KEY_SIZE]);
+	ATCResult open(istream *src, const char key[ATC_KEY_SIZE] = nullptr);
 	ATCResult close();
 
 	size_t getEntryLength() const;

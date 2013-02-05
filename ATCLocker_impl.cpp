@@ -49,11 +49,6 @@ ATCLocker_impl::~ATCLocker_impl()
 
 ATCResult ATCLocker_impl::open(ostream *dst, const char key[ATC_KEY_SIZE])
 {
-	const char zero[ATC_KEY_SIZE] = {0};
-	if (memcmp(zero, key, ATC_KEY_SIZE) == 0)
-	{
-		return ATC_ERR_NULL_KEY;
-	}
 
 	string header;
 	generatePlainHeader(&header);

@@ -69,9 +69,9 @@ int succeeded = 0;
 	cout << endl << "[Test " << total << "] " << #function << endl; \
 	if (!function()) \
 	{ \
-		cout << "\t*** FAILED ***" << endl << endl; \
+		cout << "\t*** FAILED ***" << endl; \
 	} else { \
-		cout << "\t*** OK ***" << endl << endl; \
+		cout << "\t*** OK ***" << endl; \
 		succeeded++; \
 	} \
 }

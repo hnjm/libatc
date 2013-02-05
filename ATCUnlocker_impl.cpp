@@ -50,12 +50,6 @@ ATCUnlocker_impl::~ATCUnlocker_impl()
 
 ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 {
-	const char zero[ATC_BUF_SIZE] = {0};
-	if (memcmp(zero, key, ATC_BUF_SIZE) == 0)
-	{
-		return ATC_ERR_NULL_KEY;
-	}
-
 	char token[16];
 	static const char token_string[] = "_AttacheCaseData";
 	static const char broken_token_string[] = "_Atc_Broken_Data";
@@ -71,6 +65,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 	{
 		if (memcmp(token, broken_token_string, sizeof(token)) == 0)
 		{
+			src->clear();
 			return ATC_ERR_DESTRUCTED_FILE;
 		}
 		else
@@ -87,6 +82,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 
 			if (total + header_pos < 0)
 			{
+				src->clear();
 				return ATC_ERR_UNENCRYPTED_FILE;
 			}
         
@@ -99,15 +95,24 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 			// トークンを再チェック
 			if (memcmp(token, token_string, sizeof(token)) != 0)
 			{
+				src->clear();
 				return ATC_ERR_UNENCRYPTED_FILE;
 			}
 		}
+	}
+
+	// キーが指定されていない場合は有効な暗号ファイルかどうかのチェックだけ行う
+	if (!key)
+	{
+		src->clear();
+		return ATC_OK;
 	}
 
 	src->read(reinterpret_cast<char*>(&data_version_), sizeof(data_version_));
 
 	if (data_version_ > ATC_DATA_FILE_VERSION && data_version_ < 200)
 	{
+		src->clear();
 		return ATC_ERR_UNSUPPORTED_VERSION;
 	}
 	else if (data_version_ <= 103)
@@ -575,7 +580,11 @@ void readToBuffer(char* dst, Stream ^src, size_t length)
 ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 {
 	array<System::Byte, 1>^ key_buffer = gcnew array<System::Byte, 1>(ATC_KEY_SIZE);
-	key->CopyTo(key_buffer, 0);
+
+	if (key)
+	{
+		key->CopyTo(key_buffer, 0);
+	}
 
 	array<System::Byte, 1>^ token = gcnew array<System::Byte, 1>(32);
 	static const char token_string[] = "_AttacheCaseData";
@@ -595,6 +604,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 	{
 		if (memcmp(token_native, broken_token_string, 16) == 0)
 		{
+			src->Seek(0, SeekOrigin::Begin);
 			return ATC_ERR_DESTRUCTED_FILE;
 		}
 		else
@@ -612,6 +622,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 
 			if (total + header_pos < 0)
 			{
+				src->Seek(0, SeekOrigin::Begin);
 				return ATC_ERR_UNENCRYPTED_FILE;
 			}
         
@@ -627,20 +638,27 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 			// トークンを再チェック
 			if (memcmp(token_native, token_string, 16) != 0)
 			{
+				src->Seek(0, SeekOrigin::Begin);
 				return ATC_ERR_UNENCRYPTED_FILE;
 			}
 		}
 	}
 
-
 	// トークンのバイト列を解放
 	token_native = nullptr;
+
+	if (!key)
+	{
+		src->Seek(0, SeekOrigin::Begin);
+		return ATC_OK;
+	}
 
 	// データバージョンを読み込み
 	readToBuffer(reinterpret_cast<char*>(&data_version_), src, sizeof(data_version_));
 
 	if (data_version_ > ATC_DATA_FILE_VERSION && data_version_ < 200)
 	{
+		src->Seek(0, SeekOrigin::Begin);
 		return ATC_ERR_UNSUPPORTED_VERSION;
 	}
 	else if (data_version_ <= 103)

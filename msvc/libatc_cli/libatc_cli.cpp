@@ -75,6 +75,12 @@ Result Unlocker::Open(Stream ^src, String ^key)
 	return Unlocker::Open(src, Encoding::UTF8->GetBytes(key));
 }
 
+Result Unlocker::Open(Stream ^src)
+{
+	array<System::Byte, 1>^ tmp;
+	return Unlocker::Open(src, tmp);
+}
+
 Result Unlocker::Close()
 {
 	return static_cast<Result>(impl_->close());

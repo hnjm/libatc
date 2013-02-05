@@ -53,7 +53,7 @@ public:
 	ATCUnlocker_impl();
 	~ATCUnlocker_impl();
 
-	ATCResult open(istream *src, const char key[ATC_KEY_SIZE]);
+	ATCResult open(istream *src, const char key[ATC_KEY_SIZE] = nullptr);
 	ATCResult close();
 
 	size_t getEntryLength() const;
@@ -61,7 +61,7 @@ public:
 	ATCResult extractFileData(ostream *dst, istream *src, size_t length);
 
 #ifdef USE_CLI
-	ATCResult open(Stream ^src, array<System::Byte, 1> ^key);
+	ATCResult open(Stream ^src, array<System::Byte, 1> ^key = nullptr);
 	ATCResult extractFileData(Stream ^dst, Stream ^src, size_t length);
 #endif
 

@@ -1,3 +1,8 @@
+v0.9.5
+======
+
+ - Added Unlocker::open overload
+ 
 v0.9.4
 ======
 

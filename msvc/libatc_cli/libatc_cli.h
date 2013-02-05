@@ -43,7 +43,6 @@ public enum class Result
 
 	ERR_UNENCRYPTED_FILE,
 	ERR_WRONG_KEY,
-	ERR_NULL_KEY,
 	ERR_INVARID_FILE_ENTRY,
 	ERR_DESTRUCTED_FILE,
 	ERR_BROKEN_HEADER,
@@ -85,6 +84,7 @@ public:
 public:
 	Result Open(Stream ^src, array<System::Byte, 1> ^key);
 	Result Open(Stream ^src, String ^key);
+	Result Open(Stream ^src);
 	Result Close();
 
 	Result ExtractFileData(Stream ^dst, Stream ^src, int64_t length);
