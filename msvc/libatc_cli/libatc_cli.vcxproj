@@ -110,9 +110,6 @@
     <ClCompile Include="libatc_cli.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\blowfish.h2" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="libatc_cli.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

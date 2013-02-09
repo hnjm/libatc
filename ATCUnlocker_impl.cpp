@@ -120,8 +120,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		const char *str_end = find(&key[0], &key[ATC_KEY_SIZE - 1], '\0');
 		string key_str = string(&key[0], str_end) + PASS_FOOTER;
 
-		blowfish_.Initialize(
-			const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(key_str.data())), key_str.size());
+		blowfish_.SetKey(reinterpret_cast<const unsigned char*>(key_str.c_str()), key_str.size());
 
 		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info);
 	}
@@ -359,8 +358,8 @@ void ATCUnlocker_impl::decryptBufferBlowfish(char data_buffer[ATC_BUF_SIZE])
 	char temp_buffer[ATC_BUF_SIZE] = {0};
 	memcpy(temp_buffer, data_buffer, ATC_BUF_SIZE);
 
-	blowfish_.Decode(reinterpret_cast<unsigned char*>(temp_buffer),
-		reinterpret_cast<unsigned char*>(data_buffer), ATC_BUF_SIZE);
+	blowfish_.Decrypt(reinterpret_cast<unsigned char*>(data_buffer),
+		reinterpret_cast<const unsigned char*>(data_buffer), ATC_BUF_SIZE);
 }
 
 namespace {
@@ -670,8 +669,7 @@ ATCResult ATCUnlocker_impl::open(Stream ^src, array<System::Byte, 1> ^key)
 		string key_str = string(reinterpret_cast<char*>(&key_native[0]), str_end) + PASS_FOOTER;
 		key_native = nullptr;
 
-		blowfish_.Initialize(
-			const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(key_str.data())), key_str.size());
+		blowfish_.SetKey(reinterpret_cast<const unsigned char*>(key_str.data()), key_str.size());
 		
 		pin_ptr<System::Byte> plain_header_info_native = &plain_header_info[0];
 		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info_native);

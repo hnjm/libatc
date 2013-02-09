@@ -93,7 +93,7 @@ private:
 	CRijndael rijndael_;
 	char chain_buffer_[ATC_BUF_SIZE];
 
-	CBlowFish blowfish_;
+	Blowfish blowfish_;
 
 	z_stream z_;
 	int32_t z_flush_, z_status_;

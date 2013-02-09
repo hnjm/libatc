@@ -1,77 +1,32 @@
-// blowfish.h     interface file for blowfish.cpp
-// _THE BLOWFISH ENCRYPTION ALGORITHM_
-// by Bruce Schneier
-// Revised code--3/20/94
-// Converted to C++ class 5/96, Jim Conger
+//
+// Blowfish C++ implementation
+//
+// CC0 - PUBLIC DOMAIN
+// This work is free of known copyright restrictions.
+// http://creativecommons.org/publicdomain/zero/1.0/
+//
 
-#ifndef CBlowfishH
-#define CBlowfishH
+#pragma once
 
-#define MAXKEYBYTES 	56		// 448 bits max
-#define NPASS           16		// SBox passes
+#ifndef __blowfish__
+#define __blowfish__
 
-#define DWORD  		unsigned int
-#define WORD  		unsigned short
-#define BYTE  		unsigned char
+#include <stdint.h>
 
-class CBlowFish
-{
-private:
-	DWORD 		* PArray ;
-	DWORD		(* SBoxes)[256];
-	void 		Blowfish_encipher (DWORD *xl, DWORD *xr) ;
-	void 		Blowfish_decipher (DWORD *xl, DWORD *xr) ;
-
+class Blowfish {
 public:
-			CBlowFish () ;
-			~CBlowFish () ;
-	void 		Initialize (BYTE key[], int keybytes) ;
-	DWORD		GetOutputLength (DWORD lInputLong) ;
-	DWORD		Encode (BYTE * pInput, BYTE * pOutput, DWORD lSize) ;
-	void		Decode (BYTE * pInput, BYTE * pOutput, DWORD lSize) ;
-
-} ;
-
-// choose a byte order for your hardware
-#define ORDER_DCBA	// chosing Intel in this case
-
-#ifdef ORDER_DCBA  	// DCBA - little endian - intel
-	union aword {
-		DWORD dword;
-		BYTE byte [4];
-		struct {
-			unsigned int byte3:8;
-			unsigned int byte2:8;
-			unsigned int byte1:8;
-			unsigned int byte0:8;
-		} w;
-	};
-#endif
-
-#ifdef ORDER_ABCD  	// ABCD - big endian - motorola
-	union aword {
-		DWORD dword;
-		BYTE byte [4];
-		struct {
-			unsigned int byte0:8;
-			unsigned int byte1:8;
-			unsigned int byte2:8;
-			unsigned int byte3:8;
-		} w;
-	};
-#endif
-
-#ifdef ORDER_BADC  	// BADC - vax
-	union aword {
-		DWORD dword;
-		BYTE byte [4];
-		struct {
-			unsigned int byte1:8;
-			unsigned int byte0:8;
-			unsigned int byte3:8;
-			unsigned int byte2:8;
-		} w;
+    void SetKey(const unsigned char* key, int byte_length);
+    void Encrypt(unsigned char* dst, const unsigned char* src, int byte_length) const;
+    void Decrypt(unsigned char* dst, const unsigned char* src, int byte_length) const;
+    
+private:
+    void EncryptBlock(uint32_t *left, uint32_t *right) const;
+    void DecryptBlock(uint32_t *left, uint32_t *right) const;
+    uint32_t Feistel(uint32_t value) const;
+    
+private:
+    uint32_t pary_[18];
+    uint32_t sbox_[4][256];
 };
-#endif
 
-#endif	/* CBlowfishH */
+#endif /* defined(__blowfish__) */
