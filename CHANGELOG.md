@@ -1,3 +1,8 @@
+v0.9.6
+======
+
+ - Fixed a bug with instance copying
+ 
 v0.9.5
 ======
 

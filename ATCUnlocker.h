@@ -26,6 +26,7 @@ freely, subject to the following restrictions:
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 #include "ATCCommon.h"
 
@@ -54,6 +55,6 @@ public:
 	bool self_destruction() const;
 
 private:
-	ATCUnlocker_impl *impl_;
+	std::shared_ptr<ATCUnlocker_impl> impl_;
 
 };

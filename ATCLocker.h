@@ -26,6 +26,8 @@ freely, subject to the following restrictions:
 #pragma once
 
 #include <cstdint>
+#include <memory>
+
 #include "ATCCommon.h"
 
 using namespace std;
@@ -57,6 +59,6 @@ public:
 	void set_create_time(time_t create_time);
 
 private:
-	ATCLocker_impl *impl_;
+	std::shared_ptr<ATCLocker_impl> impl_;
 
 };

@@ -120,7 +120,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		const char *str_end = find(&key[0], &key[ATC_KEY_SIZE - 1], '\0');
 		string key_str = string(&key[0], str_end) + PASS_FOOTER;
 
-		blowfish_.SetKey(reinterpret_cast<const unsigned char*>(key_str.c_str()), key_str.size());
+		blowfish_.SetKey(reinterpret_cast<const unsigned char*>(key_str.data()), key_str.size());
 
 		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info);
 	}

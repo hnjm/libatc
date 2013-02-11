@@ -21,10 +21,10 @@ namespace {
         struct {
             
 #ifdef __LITTLE_ENDIAN__
-            uint8_t byte3:8;
-            uint8_t byte2:8;
-            uint8_t byte1:8;
-            uint8_t byte0:8;
+            uint8_t byte3;
+            uint8_t byte2;
+            uint8_t byte1;
+            uint8_t byte0;
 #else
             uint8_t byte0;
             uint8_t byte1;

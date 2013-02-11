@@ -58,11 +58,8 @@ impl_(NULL)
 
 Unlocker::~Unlocker()
 {
-	if (impl_)
-	{
-		delete impl_;
-		impl_ = NULL;
-	}
+	delete impl_;
+	impl_ = NULL;
 }
 
 Result Unlocker::Open(Stream ^src, array<System::Byte, 1> ^key)
@@ -157,11 +154,8 @@ impl_(NULL)
 
 Locker::~Locker()
 {
-	if (impl_)
-	{
-		delete impl_;
-		impl_ = NULL;
-	}
+	delete impl_;
+	impl_ = NULL;
 }
 
 Result Locker::Open(Stream ^dst, array<System::Byte, 1> ^key)

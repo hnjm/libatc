@@ -29,19 +29,15 @@ freely, subject to the following restrictions:
 
 ATCUnlocker::ATCUnlocker() :
 
-impl_(NULL)
+impl_(std::make_shared<ATCUnlocker_impl>())
 
 {
-	impl_ = new ATCUnlocker_impl();
+
 }
 
 ATCUnlocker::~ATCUnlocker()
 {
-	if (impl_)
-	{
-		delete impl_;
-		impl_ = NULL;
-	}
+
 }
 
 ATCResult ATCUnlocker::open(istream *src, const char key[ATC_KEY_SIZE])

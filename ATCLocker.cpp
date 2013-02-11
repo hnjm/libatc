@@ -29,19 +29,15 @@ freely, subject to the following restrictions:
 
 ATCLocker::ATCLocker() :
 
-impl_(NULL)
+impl_(std::make_shared<ATCLocker_impl>())
 
 {
-	impl_ = new ATCLocker_impl();
+
 }
 
 ATCLocker::~ATCLocker()
 {
-	if (impl_)
-	{
-		delete impl_;
-		impl_ = NULL;
-	}
+
 }
 
 ATCResult ATCLocker::open(ostream *dst, const char key[ATC_KEY_SIZE])
