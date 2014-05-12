@@ -227,24 +227,46 @@ namespace {
         }
     };
         
-    int GCD(int larger, int smaller)
+    unsigned long GCD(unsigned long larger, unsigned long smaller)
     {
-        int gcd = smaller;
-        int gcd_prev = larger;
-        int gcd_next;
+        unsigned long gcd = smaller;
+        unsigned long gcd_prev = larger;
+        unsigned long gcd_next;
         
         while ((gcd_next = gcd_prev % gcd) != 0)
         {
-			gcd_prev = gcd;
+            gcd_prev = gcd;
             gcd = gcd_next;
         }
         
         return gcd;
     }
     
+    size_t PKCS5PaddingLength(const std::string& data) {
+        if (data.empty()) return 0;
+        char length = data[data.size() - 1];
+        if (length > 0 && length <= 8) {
+            for (size_t i = 0; i < length; ++i) {
+                if (length != data[data.size() - i - 1]) {
+                    return 0;
+                }
+            }
+        }
+        else
+        {
+            return 0;
+        }
+        return length;
+    }
+    
 }; // anonymous namespace
 
-void Blowfish::SetKey(const unsigned char* key, int byte_length)
+void Blowfish::SetKey(const std::string& key)
+{
+    SetKey(key.data(), key.size());
+}
+
+void Blowfish::SetKey(const char* key, size_t byte_length)
 {
     std::memcpy(pary_, initial_pary, sizeof(initial_pary));
     std::memcpy(sbox_, initial_sbox, sizeof(initial_sbox));
@@ -253,10 +275,10 @@ void Blowfish::SetKey(const unsigned char* key, int byte_length)
     static const int sbox_length = sizeof(sbox_) / sizeof(uint32_t);
     
     {
-        int buffer_length = byte_length / GCD(byte_length, sizeof(uint32_t));
+        unsigned long buffer_length = byte_length / GCD(byte_length, sizeof(uint32_t));
         uint32_t *key_buffer = new uint32_t[buffer_length];
         
-        for (int i = 0; i < buffer_length; ++i)
+        for (unsigned long i = 0; i < buffer_length; ++i)
         {
             Converter32 converter;
             
@@ -297,7 +319,32 @@ void Blowfish::SetKey(const unsigned char* key, int byte_length)
     }
 }
 
-void Blowfish::Encrypt(unsigned char* dst, const unsigned char* src, int byte_length) const
+void Blowfish::Encrypt(std::string* dst, const std::string& src) const
+{
+    std::string padded_data = src;
+    
+    size_t padding_length = src.length() % sizeof(uint64_t);
+    if (padding_length == 0) 
+        padding_length = sizeof(uint64_t);
+    else
+        padding_length = sizeof(uint64_t) - padding_length;
+    for (size_t i = 0; i < padding_length; ++i) {
+        padded_data += static_cast<char>(padding_length);
+    }
+    
+    dst->resize(padded_data.size());
+    Encrypt(&(*dst)[0], padded_data.data(), padded_data.size());
+}
+
+void Blowfish::Decrypt(std::string* dst, const std::string& src) const
+{
+    dst->resize(src.size());
+    Decrypt(&(*dst)[0], src.data(), src.size());
+    size_t padding_length = PKCS5PaddingLength(*dst);
+    dst->resize(dst->size() - padding_length);
+}
+
+void Blowfish::Encrypt(char* dst, const char* src, size_t byte_length) const
 {
     if (dst != src)
     {
@@ -312,7 +359,7 @@ void Blowfish::Encrypt(unsigned char* dst, const unsigned char* src, int byte_le
     }
 }
 
-void Blowfish::Decrypt(unsigned char* dst, const unsigned char* src, int byte_length) const
+void Blowfish::Decrypt(char* dst, const char* src, size_t byte_length) const
 {
     if (dst != src)
     {
@@ -325,8 +372,6 @@ void Blowfish::Decrypt(unsigned char* dst, const unsigned char* src, int byte_le
         uint32_t* right = &reinterpret_cast<uint32_t*>(dst)[i * 2 + 1];
         DecryptBlock(left, right);
     }
-
-	int a = 0;
 }
 
 void Blowfish::EncryptBlock(uint32_t *left, uint32_t *right) const

@@ -12,12 +12,22 @@
 #define __blowfish__
 
 #include <stdint.h>
+#include <cstddef>
+#include <string>
 
 class Blowfish {
 public:
-    void SetKey(const unsigned char* key, int byte_length);
-    void Encrypt(unsigned char* dst, const unsigned char* src, int byte_length) const;
-    void Decrypt(unsigned char* dst, const unsigned char* src, int byte_length) const;
+    void SetKey(const std::string& key);
+    void SetKey(const char* key, size_t byte_length);
+    
+    // Buffer will be padded with PKCS #5 automatically
+    // "dst" and "src" must be different instance
+    void Encrypt(std::string* dst, const std::string& src) const;
+    void Decrypt(std::string* dst, const std::string& src) const;
+    
+    // Buffer length must be a multiple of the block length (64bit)
+    void Encrypt(char* dst, const char* src, size_t byte_length) const;
+    void Decrypt(char* dst, const char* src, size_t byte_length) const;
     
 private:
     void EncryptBlock(uint32_t *left, uint32_t *right) const;

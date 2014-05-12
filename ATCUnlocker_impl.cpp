@@ -120,7 +120,7 @@ ATCResult ATCUnlocker_impl::open(istream *src, const char key[ATC_KEY_SIZE])
 		const char *str_end = find(&key[0], &key[ATC_KEY_SIZE - 1], '\0');
 		string key_str = string(&key[0], str_end) + PASS_FOOTER;
 
-		blowfish_.SetKey(reinterpret_cast<const unsigned char*>(key_str.data()), key_str.size());
+		blowfish_.SetKey(key_str);
 
 		encrypted_header_size = *reinterpret_cast<int32_t*>(plain_header_info);
 	}
@@ -355,11 +355,9 @@ void ATCUnlocker_impl::decryptBufferRijndael(char data_buffer[ATC_BUF_SIZE], cha
 
 void ATCUnlocker_impl::decryptBufferBlowfish(char data_buffer[ATC_BUF_SIZE])
 {
-	char temp_buffer[ATC_BUF_SIZE] = {0};
-	memcpy(temp_buffer, data_buffer, ATC_BUF_SIZE);
-
-	blowfish_.Decrypt(reinterpret_cast<unsigned char*>(data_buffer),
-		reinterpret_cast<const unsigned char*>(data_buffer), ATC_BUF_SIZE);
+    char data_buffer_tmp[ATC_BUF_SIZE];
+    blowfish_.Decrypt(data_buffer_tmp, data_buffer, ATC_BUF_SIZE);
+    memcpy(data_buffer, data_buffer_tmp, ATC_BUF_SIZE);
 }
 
 namespace {
